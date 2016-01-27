@@ -21,7 +21,7 @@ Normally `usort()` wouldn't return the sorted array:
 
     return Arrgh::usort($products, function ($a, $b) { ... });
 
-`array_map` has a different order of arguments, but in _Arrgh_ arrays are always first:
+`array_map`, and others, has a different order of arguments that most of the array API, but in _Arrgh_ arrays are always first:
 
     arrgh_map($books, $callable);
 
