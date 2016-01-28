@@ -32,6 +32,10 @@ Chain functions together:
 This is the same:
 
     return Arrgh::_reverse($product)->pop();
+    
+As is this functional approach:
+
+    return arrgh($product)->reverse()->pop();
 
 ## Array as first argument
 
