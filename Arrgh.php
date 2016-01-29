@@ -91,7 +91,7 @@ class Arrgh
     {
         return [
             "_call"         => self::$simple_functions,
-            "_shiftPush"    => self::$reverse_functions,
+            "_rotateRight"    => self::$reverse_functions,
             "_swapTwoFirst" => self::$swapped_functions,
             "_copy"         => self::$mutable_functions,
             "_copyValue"    => self::$mutable_value_functions,
@@ -147,10 +147,10 @@ class Arrgh
     }
 
     /* Shifts of the first argument (callable) and pushes it to the end */
-    static private function _shiftPush($function, $args)
+    static private function _rotateRight($function, $args)
     {
-        $first_argument = array_shift($args);
-        array_push($args, $first_argument);
+        $first_argument = array_pop($args);
+        array_unshift($args, $first_argument);
         return $function(...$args);
     }
 
