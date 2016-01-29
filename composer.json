@@ -1,8 +1,10 @@
 {
     "name": "mblarsen/arrgh",
+    "type": "library",
     "description": "PHP arrays the rrright way",
+    "keywords": ["array", "chain", "chaining", "functional"],
     "license": "MIT",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",
@@ -14,5 +16,11 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^5.1"
-    }
+    },
+    "autoload": {
+        "classmap": {
+            "Arrgh": "Arrgh.php"
+        }
+    },
+    "minimum-stability": "dev"
 }
