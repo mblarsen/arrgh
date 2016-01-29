@@ -57,10 +57,7 @@ class Arrgh
     /* Returns an array */
     public function toArray()
     {
-        if (self::$instance) {
-            return self::$instance->array;
-        }
-        throw new BadMethodCallException("Method can only be called on a chain");
+        return $this->array;
     }
 
     /* Creates a new arrgh array. Synonym for: chain() */
