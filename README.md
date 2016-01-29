@@ -36,6 +36,8 @@ This is the same:
 As is this functional approach:
 
     return arrgh($product)->reverse()->pop();
+    
+![Functional example](https://www.dropbox.com/s/lubr0zvjm0eug87/arrgh-functional.png?dl=1)
 
 ## Array as first argument
 
