@@ -43,7 +43,7 @@ _Arrgh_ makes use of the built in functions if they have array(s) as the first a
 
     array_reduce ( array $array , callable $callback [, mixed $initial = NULL ] )
 
-For misbehaving functions like `array_map` the arguments are shuffled around about:
+For misbehaving functions like `array_map` the arguments are shuffled around a bit:
 
     array_map ( callable $callback , array $array1 [, array $... ] )
 
@@ -95,23 +95,18 @@ These functions will now return a result:
 This means you can now do this:
 
     // Top 5 most expensive products
-
-    function getTop5($products) {
-        return arrgh_slice(arrgh_usort($products, function ($p1, $p2) {
-            ...
-        }), 0, 5);
-    }
+    arrgh_slice(arrgh_usort($products, function ($p1, $p2) { ... }), 0, 5);
 
 I just look nicer than:
 
-    array_usort($products, function ($p1, $p2) {... };
+    array_usort($products, function ($p1, $p2) { ... };
     return array_slice($products, 0, 5);
 
-**SPOILER** .. or something juicer like this:
+**SPOILER** .. but it could be even juicer like this:
 
     arrgh($products)->usort($products, function ($p1, $p2) { ... })->slice(0, 5);
 
-This is an example of the chainable API. See below
+This is an example of the chainable API. <kbd>[See below &darr;](#chains)</kbd>
 
 ## Choose your style
 
