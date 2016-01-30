@@ -2,37 +2,20 @@
 
 /**
  * Put the following in your init code to enable arrgh functions:
- * 
+ *
  * define("ARRGH", true);
  *
- * If you don't fancy the `arrgh` prefix in e.g. `arrgh_map` you can change it 
+ * If you don't fancy the `arrgh` prefix in e.g. `arrgh_map` you can change it
  * to something less piraty like:
  *
  * define("ARRGH_PREFIX", "arr");
- * 
+ *
  * Then `arrgh_map` becomes `arr_map`
  *
  */
 
-if (defined("ARRGH") && ARRGH === true) {
-    $arrgh_prefix = defined("ARRGH_PREFIX") ? ARRGH_PREFIX : "arrgh";
-    $prefix = $arrgh_prefix . "_";
-    $all_functions = array_merge(...array_values(Arrgh::allFunctions()));
-
-    eval("function $arrgh_prefix(\$array = []) {
-        return new Arrgh(\$array);
-    }");
-
-    foreach ($all_functions as $function) {
-        if (strpos($function, "array_") === 0) {
-            $function = substr($function, strlen("array_"));
-        }
-        $function_name = $prefix . $function;
-        $function_impl = "function $function_name () {
-            return Arrgh::$function(...func_get_args());
-        }";
-        eval($function_impl);
-    }
+if (defined("ARRGH")) {
+    require dirname(__FILE__) . '/arrgh_functions.php';
 }
 
 /**
@@ -90,8 +73,9 @@ class Arrgh
     static public function allFunctions()
     {
         return [
+            "_arrgh"        => self::$arrgh_functions,
             "_call"         => self::$simple_functions,
-            "_rotateRight"    => self::$reverse_functions,
+            "_rotateRight"  => self::$reverse_functions,
             "_swapTwoFirst" => self::$swapped_functions,
             "_copy"         => self::$mutable_functions,
             "_copyValue"    => self::$mutable_value_functions,
@@ -120,6 +104,7 @@ class Arrgh
             }
         }
 
+        // If chain unshift array onto argument stack
         if ($object && !in_array($matching_function, self::$starters)) {
             array_unshift($args, $object->array);
         }
@@ -169,7 +154,6 @@ class Arrgh
     {
         $array = array_shift($args);
         $result = $function($array, ...$args);
-        // TODO throw exception
         return $array;
     }
 
@@ -178,9 +162,24 @@ class Arrgh
     {
         $array = array_shift($args);
         $result = $function($array, ...$args);
-        // TODO throw exception
         return $result;
     }
+    
+    static private function _arrgh($function, $args)
+    {
+        $function = "arrgh_" . $function;
+        return self::$function(...$args);
+    }
+    
+    static private function arrgh_mapass($array, $callable)
+    {
+        $keys = array_keys($array);
+        return array_combine($keys, array_map($callable, $keys, $array));
+    }
+
+    static private $arrgh_functions = [
+        "mapass"
+    ];
 
     static private $simple_functions = [
         "array_change_key_case",

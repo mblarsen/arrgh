@@ -1,14 +1,18 @@
 <?php
 
-class ArrghStaticTest extends PHPUnit_Framework_TestCase
+class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 {
     const simple_array = [1, 2, 3, 4, 5];
-    const simple_array_negative = [-1, -2, -3 ,-4, -5];
     const simple_assoc_array = [
         "banana" => 1,
         "lemon"  => 2,
         "zealot" => 42
     ];
+    
+    public function before()
+    {
+        new Arrgh();
+    }
 
     public function testMap()
     {
@@ -18,7 +22,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         $native_result = array_map($map_function, $simple_array);
 
         $simple_array = self::simple_array;
-        $arrgh_result = Arrgh::map($simple_array, $map_function);
+        $arrgh_result = arrgh_map($simple_array, $map_function);
 
         $this->assertNotEmpty($native_result);
         $this->assertNotEmpty($arrgh_result);
@@ -36,7 +40,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
 
         $simple_assoc_array = self::simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
-        $arrgh_result = Arrgh::map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function);
+        $arrgh_result = arrgh_map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function);
 
         $this->assertNotEmpty($native_result);
         $this->assertEquals(4, $native_result[0]);
@@ -56,7 +60,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
 
         $simple_assoc_array = self::simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
-        $arrgh_result = array_combine($keys, Arrgh::map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function));
+        $arrgh_result = array_combine($keys, arrgh_map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function));
 
         $this->assertNotEmpty($native_result);
         $this->assertEquals(4, $native_result["banana"]);
@@ -76,22 +80,12 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
 
         $simple_assoc_array = self::simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
-        $arrgh_result = Arrgh::mapass($simple_assoc_array, $map_function);
+        $arrgh_result = arrgh_mapass($simple_assoc_array, $map_function);
 
         $this->assertNotEmpty($native_result);
         $this->assertEquals(4, $native_result["banana"]);
         $this->assertNotEmpty($arrgh_result);
         $this->assertEquals(4, $arrgh_result["banana"]);
         $this->assertEquals($native_result, $arrgh_result);
-    }
-    
-    public function testCamelCaseNaming()
-    {
-        $map_function = function ($item) { return -1 * $item; };
-
-        $simple_array = self::simple_array;
-        $arrgh_result = Arrgh::arrayMap($simple_array, $map_function);
-
-        $this->assertEquals(self::simple_array_negative, $arrgh_result);
     }
 }

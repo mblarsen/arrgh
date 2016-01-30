@@ -4,7 +4,7 @@
     "description": "PHP arrays the rrright way",
     "keywords": ["array", "chain", "chaining", "functional"],
     "license": "MIT",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",
@@ -18,7 +18,7 @@
         "phpunit/phpunit": "^5.1"
     },
     "autoload": {
-        "files": [ "Arrgh.php" ]
+        "files": [ "src/Arrgh.php" ]
     },
     "minimum-stability": "dev"
 }
