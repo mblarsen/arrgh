@@ -104,6 +104,10 @@ class Arrgh
             }
         }
 
+        if ($matching_function === null) {
+            throw new InvalidArgumentException("Method {$method} doesn't exist");
+        }
+
         // If chain unshift array onto argument stack
         if ($object && !in_array($matching_function, self::$starters)) {
             array_unshift($args, $object->array);
@@ -111,18 +115,14 @@ class Arrgh
 
         $result = self::$matching_handler($matching_function, $args);
 
-        if ($result) {
-            if ($object) {
-                $object->array = $result;
-                if (in_array($matching_function, self::$terminators)) {
-                    return $result;
-                }
-                return $object;
+        if ($object) {
+            $object->array = $result;
+            if (in_array($matching_function, self::$terminators)) {
+                return $result;
             }
-            return $result;
+            return $object;
         }
-
-        throw new InvalidArgumentException("Method {$matching_function} doesn't exist");
+        return $result;
     }
 
     /* Calls the native function directly */
@@ -164,21 +164,139 @@ class Arrgh
         $result = $function($array, ...$args);
         return $result;
     }
-    
+
     static private function _arrgh($function, $args)
     {
         $function = "arrgh_" . $function;
         return self::$function(...$args);
     }
-    
-    static private function arrgh_mapass($array, $callable)
+
+    static private function arrgh_map_ass($array, $callable)
     {
         $keys = array_keys($array);
         return array_combine($keys, array_map($callable, $keys, $array));
     }
 
+    /**
+     * Sort an array of associative arrays by key. It checks the first two values for type
+     * either sorts by number or using strcmp. If a key is missing entries are moved to the top
+     * (or bottom depending on $direction)
+     */
+    static private function arrgh_sort_by($array, $key, $direction = "ASC")
+    {
+        if (count($array) < 2) {
+            return $array;
+        }
+
+        $direction_int = strtoupper($direction) === "ASC" ? 1 : -1;
+
+        $usort_function = null;
+        if ($key instanceof Closure) {
+            usort($array, $key);
+            if ($direction === -1) {
+                $array = array_reverse($array);
+            }
+        } else {
+            $compare_function = "strcmp";
+            if (array_key_exists($key, $array[0]) && is_numeric($array[0][$key]) &&
+                array_key_exists($key, $array[1]) && is_numeric($array[1][$key])) {
+                $compare_function = null;
+            }
+
+            $usort_function = function ($a, $b) use ($compare_function, $key, $direction_int) {
+                $a_isset = isset($a[$key]);
+                $b_isset = isset($b[$key]);
+                if (!$a_isset || !$b_isset) {
+                    if (!$a_isset && !$b_isset) return 1;
+                    return $direction_int * ($a_isset && !$b_isset ? 1 : -1);
+                }
+                if ($compare_function === null) {
+                    return $direction_int * ($a[$key] - $b[$key]);
+                }
+                return  $compare_function($a[$key], $b[$key]) * $direction_int;
+            };
+
+            usort($array, $usort_function);
+        }
+
+        return $array;
+    }
+
+    static private function arrgh_collapse($array)
+    {
+        return array_reduce($array, function ($merged, $item) {
+            return $merged = array_merge($merged, $item);
+        }, []);
+    }
+
+    static private function arrgh_contains($array, $search, $key = null)
+    {
+        $haystack = null;
+        if ($key) {
+            $haystack = array_column($array, $key);
+        } else {
+            $haystack = array_reduce($array, function ($merged, $item) {
+                return $merged = array_merge($merged, array_values($item));
+            }, []);
+        }
+        return array_search($search, $haystack) !== false;
+    }
+
+    static private function arrgh_except($array, $except)
+    {
+        if (is_string($except)) {
+            $except = [ $except ];
+        }
+
+        // Assoc or collection
+        $is_collection = is_numeric(array_keys($array)[0]);
+        $array = $is_collection ? $array : [ $array ];
+
+        $result = array_map(function ($item) use ($except) {
+            foreach ($except as $key) {
+                unset($item[$key]);
+            }
+            return $item;
+        }, $array);
+
+        if ($is_collection) {
+            return $result;
+        }
+        return $result[0];
+    }
+
+    static private function arrgh_only($array, $only)
+    {
+        if (is_string($only)) {
+            $only = [ $only ];
+        }
+
+        // Assoc or collection
+        $is_collection = is_numeric(array_keys($array)[0]);
+        $array = $is_collection ? $array : [ $array ];
+
+        $result = array_map(function ($item) use ($only) {
+            foreach ($item as $key => $value) {
+                if (!in_array($key, $only)) {
+                    unset($item[$key]);
+                }
+            }
+            return $item;
+        }, $array);
+
+        if ($is_collection) {
+            return $result;
+        }
+        return $result[0];
+    }
+
     static private $arrgh_functions = [
-        "mapass"
+        "map_ass",
+        "sort_by",
+        "collapse",
+        "contains",
+        "except",
+        "only",
     ];
 
     static private $simple_functions = [

@@ -224,4 +224,9 @@ I lied. These functions are not supported:
 
 But then you get:
 
-   TODO list new functions
+   * `map_ass(array, function)`: Map function that works on associative arrays. Map function `function ($key, $value)`.
+   * `sort_by(array, key|function)`: Sort a collection of items by a key or a function. Sort function `function ($item)`.
+   * `contains(array, [key])`: Looks through a collection for a certain value and returns true or falls. Can be restricted to a key.
+   * `collapse(array)`: Collapses an array of arrays into one. E.g. `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`
+   * `except(array, key|array)`: Return all collections of items having some keys in `key|array` stripped.
+   * `only(array, key|array)`: Like `except` but will only return items with the keys in `key|array`.

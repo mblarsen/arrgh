@@ -70,7 +70,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     }
     
     /* Tests associative mapping */
-    public function testMapass()
+    public function testMapAss()
     {
         $map_function = function ($k, $v) { return $v *= $k === "banana" ? 4 : 1; };
 
@@ -80,7 +80,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 
         $simple_assoc_array = self::simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
-        $arrgh_result = arrgh_mapass($simple_assoc_array, $map_function);
+        $arrgh_result = arrgh_map_ass($simple_assoc_array, $map_function);
 
         $this->assertNotEmpty($native_result);
         $this->assertEquals(4, $native_result["banana"]);
