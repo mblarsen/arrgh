@@ -88,4 +88,30 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(4, $arrgh_result["banana"]);
         $this->assertEquals($native_result, $arrgh_result);
     }
+    
+    public function testArrayAccess()
+    {
+        $arr = arrgh([1, 2, 3, 4, 5]);
+        $this->assertEquals(15, $arr->sum());
+        $arr[] = 6;
+        $this->assertEquals(21, $arr->sum());
+        $this->assertEquals(15, $arr->keepChain()->pop()->keepChain(false)->sum());
+    }
+    
+    public function testIterator()
+    {
+        $arr = arrgh([1, 2, 3, 4, 5]);
+        $content = [];
+        foreach ($arr as $value) {
+            $content[] = $value;
+        }
+        $this->assertEquals([1, 2, 3, 4, 5], $content);
+        
+        $arr = arrgh([[3, 2, 1], [5, 4]]);
+        $content = arrgh([]);
+        foreach ($arr as $value) {
+            $content = $content->merge($value->reverse());
+        }
+        $this->assertEquals([1, 2, 3, 4, 5], $content->toArray());
+    }
 }

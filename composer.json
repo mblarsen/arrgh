@@ -2,9 +2,9 @@
     "name": "mblarsen/arrgh",
     "type": "library",
     "description": "PHP arrays the rrright way",
-    "keywords": ["array", "chain", "chaining", "functional"],
+    "keywords": ["array", "chain", "chaining", "functional", "shim"],
     "license": "MIT",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",

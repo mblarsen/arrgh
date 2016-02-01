@@ -1,34 +1,28 @@
 <?php
 
 /**
- * Put the following in your init code to enable arrgh functions:
- *
- * define("ARRGH", true);
- *
- * If you don't fancy the `arrgh` prefix in e.g. `arrgh_map` you can change it
- * to something less piraty like:
- *
- * define("ARRGH_PREFIX", "arr");
- *
- * Then `arrgh_map` becomes `arr_map`
- *
- */
-
-if (defined("ARRGH")) {
-    require dirname(__FILE__) . '/arrgh_functions.php';
-}
-
-/**
  * A chainable array API or a set of static functions, or both.
+ *
+ * Note: arrgh_* global functions are defined at the end of the file
  */
-class Arrgh
+class Arrgh implements ArrayAccess, Iterator
 {
     private $array;
+    private $array_position;
+    private $original_array;
+    private $terminate;
+    private $last_value;
 
     /* Creates a new arrgh array */
     public function __construct($array = [])
     {
         $this->array = $array;
+        $this->array_position = 0;
+        if ($array instanceof Arrgh) {
+            $this->array = $array->toArray();
+        }
+        $this->_original_array = $this->array;
+        $this->terminate = true;
     }
 
     /* Starts object calls */
@@ -41,6 +35,74 @@ class Arrgh
     public function toArray()
     {
         return $this->array;
+    }
+    
+    public function keepChain($value = true)
+    {
+        $this->terminate = !$value;
+        return $this;
+    }
+    
+    /* ArrayAccess */
+    public function offsetExists($offcet)
+    {
+        return isset($this->$array[$offset]);
+    }
+    
+    /* ArrayAccess */
+    public function offsetGet($offset)
+    {
+        return isset($this->array[$offset]) ? $this->array[$offset] : null;
+    }
+    
+    /* ArrayAccess */
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->array[] = $value;
+        } else {
+            $this->array[$offset] = $value;
+        }
+    }
+    
+    /* ArrayAccess */
+    public function offsetUnset($offset)
+    {
+        unset($this->array[$offset]);
+    }
+    
+    /* Iterator */
+    public function current()
+    {
+        $value = $this->array[$this->array_position];
+        if (is_array($value)) {
+            return new Arrgh($value);
+        }
+        return $value;
+    }
+
+    /* Iterator */
+    public function key()
+    {
+        return $this->array_position;
+    }
+
+    /* Iterator */
+    public function next()
+    {
+        ++$this->array_position;
+    }
+
+    /* Iterator */
+    public function rewind()
+    {
+        $this->position = 0;
+    }
+
+    /* Iterator */
+    public function valid()
+    {
+        return isset($this->array[$this->array_position]);
     }
 
     /* Creates a new arrgh array. Synonym for: chain() */
@@ -112,14 +174,22 @@ class Arrgh
         if ($object && !in_array($matching_function, self::$starters)) {
             array_unshift($args, $object->array);
         }
+        
+        // If some arrays are Arrghs map to array
+        $args = array_map(function ($arg) { return $arg instanceof Arrgh ? $arg->array : $arg; }, $args);
 
-        $result = self::$matching_handler($matching_function, $args);
+        // Invoke handler
+        $result = self::$matching_handler($matching_function, $args, $object);
 
         if ($object) {
-            $object->array = $result;
             if (in_array($matching_function, self::$terminators)) {
-                return $result;
+                if ($object->terminate) {
+                    return $result;
+                }
+                $object->last_value = $result;
+                return $object;
             }
+            $object->array = $result;
             return $object;
         }
         return $result;
@@ -158,14 +228,17 @@ class Arrgh
     }
 
     /* Makes a copy of the array and returns it after invoking function */
-    static private function _copyValue($function, $args)
+    static private function _copyValue($function, $args, $object = null)
     {
         $array = array_shift($args);
         $result = $function($array, ...$args);
+        if ($object) {
+            $object->array = $array;
+        }
         return $result;
     }
 
-    static private function _arrgh($function, $args)
+    static private function _arrgh($function, $args, $object = null)
     {
         $function = "arrgh_" . $function;
         return self::$function(...$args);
@@ -512,4 +585,8 @@ class Arrgh
         "join",
         "sizeof",
     ];
+}
+
+if (defined("ARRGH")) {
+    require dirname(__FILE__) . '/arrgh_functions.php';
 }

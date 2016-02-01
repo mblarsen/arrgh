@@ -282,7 +282,44 @@ But then you get:
    * `get(array, path)`: A powerful getter of multidimensional arrays.
    * `isCollection(array)`: Tells if an array is a collection (as opposed ot an associative array)
 
+## Works like array
+
+_Arrgh_ implements `ArrayAccess` and `Iterator`, so you can use it as an array.
+
+Here is an exapmle using foreach:
+
+    $arr = arrgh([1, 2, 3, 4, 5]);
+    foreach ($arr as $value) {
+        echo $value . PHP_EOL;
+    }
+
+You can push values onto array like native arrays:
+
+    echo $arr->sum(); // 15
+    $arr[] = 6;
+    echo $arr->sum(); // 21
+
+Array values are returned as `Arrgh` objects:
+
+    $arr = arrgh([[3, 2, 1], [5, 4]]);
+    $content = arrgh([]);
+    foreach ($arr as $value) {
+        $content = $content->merge($value->reverse());
+    }
+    $content->toArray(); // returns array [ 1, 2, 3, 4, 5 ];
+
+Note: PHP's native functions can only take arrays as paramters, so that is a limitation. But you are not using them anyway are you?
+
 ## Change log
+
+**v0.4.0**
+
+* New: Implements ArrayAccess and Iterator. Iterator returns Arrgh instead of arrays.
+* New: Arrgh objects can be passed as arguments instead of arrays.
+* New: _copyValue_ type functions like `array_pop` that changes the array but also returns a value
+  now sets the array to it can be access with `toArray()`.
+* New: Default behaviour of value functions is to return the value. E.g. `pop()`. The new function `keepChain()` will return the `Arrgh` object rather than the value.
+  
 
 **v0.3.0**
 
