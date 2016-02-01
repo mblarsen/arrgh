@@ -60,7 +60,7 @@ Powerful get function using dot-paths:
     Arrgh::get($array, "children.1.name");
     
     // or use built-in select functions, all last-borns
-    Arrgh::get($array, "children.!>.name")
+    Arrgh::get($array, "children.!>.name");
 
     // or role your own select functions, return non-child bearing over age 35
     Arrgh::get(
@@ -68,7 +68,6 @@ Powerful get function using dot-paths:
         [
             "!$", 
             function ($item, $index) {
-                // var_dump($item);
                 return !isset($item["children"]) && $item["age"] > 35;
             }
         ]
