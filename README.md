@@ -37,6 +37,43 @@ As is this functional approach:
 
     return arrgh($product)->reverse()->pop();
     
+Powerful get function using dot-paths:
+
+    // People and their children
+    $array = [
+        [ "name" => "Jakob", "age" => 37, "children" => [
+            [ "name" => "Mona", "sex" => "female" ], 
+            [ "name" => "Lisa", "sex" => "female" ],
+        ] ],
+        [ "name" => "Topher", "age" => 18, "children" => [
+            [ "name" => "Joe", "sex" => "male" ],
+        ] ],
+        [ "name" => "Ginger", "age" => 43 ],
+    ];
+
+    // Return all children's names
+    Arrgh::dotGet($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
+    Arrgh::dotGet($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
+    
+    // Use buil-in select functions, select by index: 
+    Arrgh::dotGet($array, "children.0.name");
+    Arrgh::dotGet($array, "children.1.name");
+    
+    // or use built-in select functions, all last-borns
+    Arrgh::dotGet($array, "children.!>.name")
+
+    // or role your own select functions, return non-child bearing over age 35
+    Arrgh::dotGet(
+        $array, 
+        [
+            "!$", 
+            function ($item, $index) {
+                // var_dump($item);
+                return !isset($item["children"]) && $item["age"] > 35;
+            }
+        ]
+    );
+
 ![Functional example](https://www.dropbox.com/s/lubr0zvjm0eug87/arrgh-functional.png?dl=1)
 
 ## Array as first argument
@@ -57,12 +94,24 @@ In _Arrgh_ we restore sanity:
 
 All functions that takes one or more arrays now takes them as their first arguments:
 
-    array_key_exists
-    array_map
-    array_search
-    implode
-    in_​array
-    join
+    array_key_exists($key, $array) 
+        => ($array, $key)
+        
+    array_map($callable, $array[, ..., arrayn]) 
+        => ($array[, ..., arrayn], $callable)
+        
+    array_search($search, $array) 
+        => ($array, $search)
+        
+    implode($glue, $array) 
+        => ($array, $glue);
+        
+    join($glue, $array) 
+        => ($array, $glue);
+        
+    in_​array($key, $array)
+        => ($array, $key)
+
 
 ## All functions returns
 
@@ -230,3 +279,12 @@ But then you get:
    * `collapse(array)`: Collapses an array of arrays into one. E.g. `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`
    * `except(array, key|array)`: Return all collections of items having some keys in `key|array` stripped.
    * `only(array, key|array)`: Like `except` but will only return items with the keys in `key|array`.
+   * `dotGet(array, path)`: A powerful getter of multidimensional arrays.
+   * `isCollection(array)`: Tells if an array is a collection (as opposed ot an associative array)
+
+## Change log
+
+**v0.2.1**
+
+* Added: `dotGet()` function <kbd>[see examples](#examples)</kbd>
+* Added: `isCollection()` function

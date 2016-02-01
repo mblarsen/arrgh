@@ -148,7 +148,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ], $sorted_by_bar);
     }
-    
+
     public function testSortByUserFunction()
     {
         $array = [
@@ -174,15 +174,18 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
         ], $sorted_by_zip_code_minus_age);
-        
+
     }
-    
+
     public function testCollapse()
     {
         $array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
         $this->assertEquals([1, 2, 3, 4, 5, 6, 7, 8, 9], Arrgh::collapse($array));
+
+        $array = [[1, 2, 3], [4, 5, 6], [7, 8, 9], 10];
+        $this->assertEquals([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Arrgh::collapse($array));
     }
-    
+
     public function testContains()
     {
         $array = [
@@ -190,7 +193,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ];
-        
+
         $this->assertTrue(Arrgh::contains($array, 2100));
         $this->assertFalse(Arrgh::contains($array, 2100, "age"));
         $this->assertFalse(Arrgh::contains($array, 666));
@@ -198,7 +201,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(Arrgh::contains($array, "Jakob"));
         $this->assertFalse(Arrgh::contains($array, "Benji"));
     }
-    
+
     public function testExcept()
     {
         $array = [
@@ -206,7 +209,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ];
-        
+
         $item = [ "name" => "Jakob", "age" => 37, "zip_code" => 2100 ];
 
         // Remove key-string
@@ -250,7 +253,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ];
-        
+
         $item = [ "name" => "Jakob", "age" => 37, "zip_code" => 2100 ];
 
         // Remove key-string
@@ -285,5 +288,88 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Jakob" ],
             Arrgh::only($item, ["name" ])
         );
+    }
+
+    public function testDotGet()
+    {
+        $array = [
+            [ "name" => "Jakob", "age" => 37, "children" => [
+                [ "name" => "Mona", "sex" => "female" ],
+                [ "name" => "Lisa", "sex" => "female" ],
+            ] ],
+            [ "name" => "Topher", "age" => 18, "children" => [
+                [ "name" => "Joe", "sex" => "male" ],
+            ] ],
+            [ "name" => "Ginger", "age" => 43 ],
+        ];
+
+        $this->assertEquals([ "name" => "Ginger", "age" => 43 ], Arrgh::dotGet($array, "2"));
+        $this->assertEquals("Ginger", Arrgh::dotGet($array, "2.name"));
+        $this->assertEquals([ "Jakob", "Topher", "Ginger" ], Arrgh::dotGet($array, "name"));
+        $this->assertEquals(
+            [ [ "Mona", "Lisa" ], [ "Joe" ] ],
+            Arrgh::dotGet($array, "children.name")
+        );
+
+        $this->assertEquals(
+            [ "Mona", "Lisa", "Joe" ],
+            Arrgh::dotGet($array, "children.name", $collapse = true)
+        );
+
+        $this->assertEquals(
+            [ "Mona", "Joe" ],
+            Arrgh::dotGet($array, "children.0.name", $collapse = true)
+        );
+
+        $this->assertEquals(
+            [ "Lisa" ],
+            Arrgh::dotGet($array, "children.1.name", $collapse = true)
+        );
+
+        $this->assertEquals(
+            [ ],
+            Arrgh::dotGet($array, "children.2.name", $collapse = true)
+        );
+
+        $this->assertEquals(
+            [ "Lisa", "Joe" ],
+            Arrgh::dotGet($array, "children.!>.name", $collapse = true)
+        );
+
+        $this->assertEquals( [null, null, null], Arrgh::dotGet($array, "dad"));
+        $this->assertEquals( [ ], Arrgh::dotGet($array, "dad", $collapse = true));
+
+        $this->assertEquals(
+            [ "Mona", "Lisa" ],
+            Arrgh::dotGet(
+                $array,
+                [
+                    "children.!$.name",
+                    function ($item, $index) {
+                        return $item['sex'] === 'female';
+                    }
+                ]
+            )
+        );
+
+        // Return non-child bearing over age 35
+        $this->assertEquals(
+            [ [ "name" => "Ginger", "age" => 43 ] ],
+            Arrgh::dotGet(
+                $array,
+                [
+                    "!$",
+                    function ($item, $index) {
+                        // var_dump($item);
+                        return !isset($item["children"]) && $item["age"] > 35;
+                    }
+                ]
+            )
+        );
+
+        // $this->assertEquals(
+        //     [ [ "name" => "Mona", "sex" => "female" ] ],
+        //     Arrgh::dotGet($array, "0.children.0")
+        // );
     }
 }

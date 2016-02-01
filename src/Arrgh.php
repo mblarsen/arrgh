@@ -225,7 +225,11 @@ class Arrgh
     static private function arrgh_collapse($array)
     {
         return array_reduce($array, function ($merged, $item) {
-            return $merged = array_merge($merged, $item);
+            if (is_array($item)) {
+                return $merged = array_merge($merged, $item);
+            }
+            $merged[] = $item;
+            return $merged;
         }, []);
     }
 
@@ -248,8 +252,7 @@ class Arrgh
             $except = [ $except ];
         }
 
-        // Assoc or collection
-        $is_collection = is_numeric(array_keys($array)[0]);
+        $is_collection = Arrgh::arrgh_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
         $result = array_map(function ($item) use ($except) {
@@ -271,8 +274,7 @@ class Arrgh
             $only = [ $only ];
         }
 
-        // Assoc or collection
-        $is_collection = is_numeric(array_keys($array)[0]);
+        $is_collection = Arrgh::arrgh_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
         $result = array_map(function ($item) use ($only) {
@@ -290,6 +292,125 @@ class Arrgh
         return $result[0];
     }
 
+    static private function arrgh_dot_get($array, $path, $collapse = false)
+    {
+        $path_string = $path;
+        if (is_array($path)) {
+            $path_string = array_shift($path);
+        }
+        $path_segments = explode(".", $path_string);
+        $result = self::_arrgh_dot_get_traverse($array, $path_segments, $collapse, /* functions */ $path );
+        // Re-index collection
+        // if (Arrgh::arrgh_is_collection($result)) {
+            // return array_values($result);
+        // }
+        return $result;
+    }
+
+    static private function _arrgh_dot_get_traverse($data, $path, $collapse = false, $functions = [])
+    {
+        $next_key      = array_shift($path);
+        $plug_index    = is_numeric($next_key) ? (int) $next_key : null;
+        $is_collection = self::isCollection($data);
+
+        $next_node = null;
+
+        if (in_array($next_key, ['!$'])) {
+            if ($is_collection && $next_key === '!$') {
+                $function  = array_shift($functions);
+                $data      = array_values(array_filter($data, $function, ARRAY_FILTER_USE_BOTH));
+                $next_key  = array_shift($path);
+            } else {
+                throw new Exception("Invalid path trying to invoke function on non-collection");
+            }
+        }
+        if ($plug_index !== null || in_array($next_key, ["!>"])) {
+            if ($is_collection) {
+                if ($plug_index !== null && isset($data[$plug_index])) {
+                    $next_node = $data[$plug_index];
+                } else if ($next_key === '!>') {
+                    $next_node = array_pop($data);
+                }
+            } else {
+                throw new Exception("Invalid path trying to plug item but data is not a collection");
+            }
+        } else {
+            if ($next_key !== null) {
+                if ($is_collection) {
+                    $next_node = array_map(function ($item) use ($next_key) {
+                        if ($item !== null && array_key_exists($next_key, $item)) {
+                            return $item[$next_key];
+                        }
+                        return null;
+                    }, $data);
+                } else if (is_array($data)) {
+                    if (array_key_exists($next_key, $data)) {
+                        $next_node = $data[$next_key];
+                    }
+                }
+            } else {
+                $next_node = $data;
+            }
+        }
+
+        if ($next_node === null) {
+            return null;
+        }
+
+        if (count($path) === 0) {
+            if (is_array($next_node) && $collapse) {
+                return array_filter($next_node);
+            }
+            return $next_node;
+        }
+
+        // If path is not completed
+        if (is_array($next_node)) {
+            if (empty($next_node)) {
+                return $next_node;
+            }
+
+            // Recurse
+            $array_keys = array_keys($next_node);
+            if (Arrgh::arrgh_is_collection($next_node)) {
+                if ($collapse
+                    && !is_numeric($path[0])
+                    && !in_array($path[0], ["!>", "!$"])
+                ) {
+                    $next_node = Arrgh::arrgh_collapse($next_node);
+                }
+                $sub_result = [];
+                foreach ($next_node as $node) {
+                    if ($node === null) {
+                        $sub_result[] = null;
+                    } else {
+                        $sub_result[] = self::_arrgh_dot_get_traverse($node, $path, $collapse, $functions);
+                    }
+                }
+
+                // Since collection functions inject an array segment we must collapse the result
+                if (in_array($path[0], ["!$"])) {
+                    $sub_result = Arrgh::arrgh_collapse($sub_result);
+                }
+            } else {
+                $sub_result = self::_arrgh_dot_get_traverse($next_node, $path, $collapse, $functions);
+            }
+            if (is_array($sub_result)) {
+                return array_filter($sub_result);
+            }
+            return $sub_result;
+        }
+        throw new Exception("Next node in path is not an array");
+    }
+
+    static private function arrgh_is_collection($mixed)
+    {
+        if (!is_array($mixed)) return false;
+        $keys = array_keys($mixed);
+        if (isset($keys[0]) && is_numeric($keys[0])) return true;
+        return false;
+    }
+
     static private $arrgh_functions = [
         "map_ass",
         "sort_by",
@@ -297,6 +418,8 @@ class Arrgh
         "contains",
         "except",
         "only",
+        'dot_get',
+        'is_collection',
     ];
 
     static private $simple_functions = [
