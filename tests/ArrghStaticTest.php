@@ -290,7 +290,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testDotGet()
+    public function testGet()
     {
         $array = [
             [ "name" => "Jakob", "age" => 37, "children" => [
@@ -303,45 +303,45 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 43 ],
         ];
 
-        $this->assertEquals([ "name" => "Ginger", "age" => 43 ], Arrgh::dotGet($array, "2"));
-        $this->assertEquals("Ginger", Arrgh::dotGet($array, "2.name"));
-        $this->assertEquals([ "Jakob", "Topher", "Ginger" ], Arrgh::dotGet($array, "name"));
+        $this->assertEquals([ "name" => "Ginger", "age" => 43 ], Arrgh::get($array, "2"));
+        $this->assertEquals("Ginger", Arrgh::get($array, "2.name"));
+        $this->assertEquals([ "Jakob", "Topher", "Ginger" ], Arrgh::get($array, "name"));
         $this->assertEquals(
             [ [ "Mona", "Lisa" ], [ "Joe" ] ],
-            Arrgh::dotGet($array, "children.name")
+            Arrgh::get($array, "children.name")
         );
 
         $this->assertEquals(
             [ "Mona", "Lisa", "Joe" ],
-            Arrgh::dotGet($array, "children.name", $collapse = true)
+            Arrgh::get($array, "children.name", $collapse = true)
         );
 
         $this->assertEquals(
             [ "Mona", "Joe" ],
-            Arrgh::dotGet($array, "children.0.name", $collapse = true)
+            Arrgh::get($array, "children.0.name", $collapse = true)
         );
 
         $this->assertEquals(
             [ "Lisa" ],
-            Arrgh::dotGet($array, "children.1.name", $collapse = true)
+            Arrgh::get($array, "children.1.name", $collapse = true)
         );
 
         $this->assertEquals(
             [ ],
-            Arrgh::dotGet($array, "children.2.name", $collapse = true)
+            Arrgh::get($array, "children.2.name", $collapse = true)
         );
 
         $this->assertEquals(
             [ "Lisa", "Joe" ],
-            Arrgh::dotGet($array, "children.!>.name", $collapse = true)
+            Arrgh::get($array, "children.!>.name", $collapse = true)
         );
 
-        $this->assertEquals( [null, null, null], Arrgh::dotGet($array, "dad"));
-        $this->assertEquals( [ ], Arrgh::dotGet($array, "dad", $collapse = true));
+        $this->assertEquals( [null, null, null], Arrgh::get($array, "dad"));
+        $this->assertEquals( [ ], Arrgh::get($array, "dad", $collapse = true));
 
         $this->assertEquals(
             [ "Mona", "Lisa" ],
-            Arrgh::dotGet(
+            Arrgh::get(
                 $array,
                 [
                     "children.!$.name",
@@ -355,7 +355,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         // Return non-child bearing over age 35
         $this->assertEquals(
             [ [ "name" => "Ginger", "age" => 43 ] ],
-            Arrgh::dotGet(
+            Arrgh::get(
                 $array,
                 [
                     "!$",
@@ -369,7 +369,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
 
         // $this->assertEquals(
         //     [ [ "name" => "Mona", "sex" => "female" ] ],
-        //     Arrgh::dotGet($array, "0.children.0")
+        //     Arrgh::get($array, "0.children.0")
         // );
     }
 }

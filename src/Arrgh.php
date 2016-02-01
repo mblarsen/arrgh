@@ -292,14 +292,14 @@ class Arrgh
         return $result[0];
     }
 
-    static private function arrgh_dot_get($array, $path, $collapse = false)
+    static private function arrgh_get($array, $path, $collapse = false)
     {
         $path_string = $path;
         if (is_array($path)) {
             $path_string = array_shift($path);
         }
         $path_segments = explode(".", $path_string);
-        $result = self::_arrgh_dot_get_traverse($array, $path_segments, $collapse, /* functions */ $path );
+        $result = self::_arrgh_get_traverse($array, $path_segments, $collapse, /* functions */ $path );
         // Re-index collection
         // if (Arrgh::arrgh_is_collection($result)) {
             // return array_values($result);
@@ -307,7 +307,7 @@ class Arrgh
         return $result;
     }
 
-    static private function _arrgh_dot_get_traverse($data, $path, $collapse = false, $functions = [])
+    static private function _arrgh_get_traverse($data, $path, $collapse = false, $functions = [])
     {
         $next_key      = array_shift($path);
         $plug_index    = is_numeric($next_key) ? (int) $next_key : null;
@@ -384,7 +384,7 @@ class Arrgh
                     if ($node === null) {
                         $sub_result[] = null;
                     } else {
-                        $sub_result[] = self::_arrgh_dot_get_traverse($node, $path, $collapse, $functions);
+                        $sub_result[] = self::_arrgh_get_traverse($node, $path, $collapse, $functions);
                     }
                 }
 
@@ -393,7 +393,7 @@ class Arrgh
                     $sub_result = Arrgh::arrgh_collapse($sub_result);
                 }
             } else {
-                $sub_result = self::_arrgh_dot_get_traverse($next_node, $path, $collapse, $functions);
+                $sub_result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
             }
             if (is_array($sub_result)) {
                 return array_filter($sub_result);
@@ -418,7 +418,7 @@ class Arrgh
         "contains",
         "except",
         "only",
-        'dot_get',
+        'get',
         'is_collection',
     ];
 

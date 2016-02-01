@@ -52,18 +52,18 @@ Powerful get function using dot-paths:
     ];
 
     // Return all children's names
-    Arrgh::dotGet($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
-    Arrgh::dotGet($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
+    Arrgh::get($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
+    Arrgh::get($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
     
     // Use buil-in select functions, select by index: 
-    Arrgh::dotGet($array, "children.0.name");
-    Arrgh::dotGet($array, "children.1.name");
+    Arrgh::get($array, "children.0.name");
+    Arrgh::get($array, "children.1.name");
     
     // or use built-in select functions, all last-borns
-    Arrgh::dotGet($array, "children.!>.name")
+    Arrgh::get($array, "children.!>.name")
 
     // or role your own select functions, return non-child bearing over age 35
-    Arrgh::dotGet(
+    Arrgh::get(
         $array, 
         [
             "!$", 
@@ -279,12 +279,16 @@ But then you get:
    * `collapse(array)`: Collapses an array of arrays into one. E.g. `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`
    * `except(array, key|array)`: Return all collections of items having some keys in `key|array` stripped.
    * `only(array, key|array)`: Like `except` but will only return items with the keys in `key|array`.
-   * `dotGet(array, path)`: A powerful getter of multidimensional arrays.
+   * `get(array, path)`: A powerful getter of multidimensional arrays.
    * `isCollection(array)`: Tells if an array is a collection (as opposed ot an associative array)
 
 ## Change log
 
+**v0.3.0**
+
+* Changed `dotGet` to `get`
+
 **v0.2.1**
 
-* Added: `dotGet()` function <kbd>[see examples](#examples)</kbd>
+* Added: `get()` function <kbd>[see examples](#examples)</kbd>
 * Added: `isCollection()` function
