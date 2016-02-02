@@ -2,9 +2,9 @@
 
 class ArrghStaticTest extends PHPUnit_Framework_TestCase
 {
-    const simple_array = [1, 2, 3, 4, 5];
-    const simple_array_negative = [-1, -2, -3 ,-4, -5];
-    const simple_assoc_array = [
+    static private $simple_array = [1, 2, 3, 4, 5];
+    static private $simple_assoc_array = [
+    static private $simple_assoc_array = [
         "banana" => 1,
         "lemon"  => 2,
         "zealot" => 42
@@ -14,10 +14,10 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
     {
         $map_function = function ($item) { return -1 * $item; };
 
-        $simple_array = self::simple_array;
+        $simple_array = self::$simple_array;
         $native_result = array_map($map_function, $simple_array);
 
-        $simple_array = self::simple_array;
+        $simple_array = self::$simple_array;
         $arrgh_result = Arrgh::map($simple_array, $map_function);
 
         $this->assertNotEmpty($native_result);
@@ -30,11 +30,11 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
     {
         $map_function = function ($k, $v) { return $v *= $k === "banana" ? 4 : 1; };
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $native_result = array_map($map_function, $keys, $simple_assoc_array);
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $arrgh_result = Arrgh::map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function);
 
@@ -50,11 +50,11 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
     {
         $map_function = function ($k, $v) { return $v *= $k === "banana" ? 4 : 1; };
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $native_result = array_combine($keys, array_map($map_function, $keys, $simple_assoc_array));
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $arrgh_result = array_combine($keys, Arrgh::map(array_keys($simple_assoc_array), $simple_assoc_array, $map_function));
 
@@ -70,11 +70,11 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
     {
         $map_function = function ($k, $v) { return $v *= $k === "banana" ? 4 : 1; };
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $native_result = array_combine($keys, array_map($map_function, $keys, $simple_assoc_array));
 
-        $simple_assoc_array = self::simple_assoc_array;
+        $simple_assoc_array = self::$simple_assoc_array;
         $keys = array_keys($simple_assoc_array);
         $arrgh_result = Arrgh::mapAss($simple_assoc_array, $map_function);
 
@@ -89,10 +89,10 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
     {
         $map_function = function ($item) { return -1 * $item; };
 
-        $simple_array = self::simple_array;
+        $simple_array = self::$simple_array;
         $arrgh_result = Arrgh::arrayMap($simple_array, $map_function);
 
-        $this->assertEquals(self::simple_array_negative, $arrgh_result);
+        $this->assertEquals(self::$simple_array_negative, $arrgh_result);
     }
 
     public function testSortBy()
