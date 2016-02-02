@@ -7,11 +7,17 @@
  */
 class Arrgh implements ArrayAccess, Iterator
 {
+    const PHP_SORT_DIRECTION_56 = 1;
+    const PHP_SORT_DIRECTION_7 = -1;
+        
     private $array;
     private $array_position;
     private $original_array;
     private $terminate;
     private $last_value;
+
+    private static $php_version;
+    private static $php_sort_direction;
 
     /* Creates a new arrgh array */
     public function __construct($array = [])
@@ -147,6 +153,11 @@ class Arrgh implements ArrayAccess, Iterator
     /* Transforms the incoming calls to native calls */
     static private function invoke($method, $args, $object = null)
     {
+        if (self::$php_version === null) {
+            self::$php_version = explode(".", phpversion());
+            self::$php_sort_direction = self::$php_version[0] >= 7 ? self::PHP_SORT_DIRECTION_7 : self::PHP_SORT_DIRECTION_56;
+        }
+
         $snake = strtolower(preg_replace('/\B([A-Z])/', '_\1', $method));
         $function_name = $snake;
         $function_name_prefixed = stripos($method, "array_") === 0 ? $snake : "array_" . $snake;
@@ -266,11 +277,11 @@ class Arrgh implements ArrayAccess, Iterator
         $usort_function = null;
         if ($key instanceof Closure) {
             usort($array, $key);
-            if ($direction === -1) {
+            if ($direction_int === -1) {
                 $array = array_reverse($array);
             }
         } else {
-            $compare_function = "strcmp";
+            $compare_function = "strcasecmp";
             if (array_key_exists($key, $array[0]) && is_numeric($array[0][$key]) &&
                 array_key_exists($key, $array[1]) && is_numeric($array[1][$key])) {
                 $compare_function = null;
@@ -280,18 +291,23 @@ class Arrgh implements ArrayAccess, Iterator
                 $a_isset = isset($a[$key]);
                 $b_isset = isset($b[$key]);
                 if (!$a_isset || !$b_isset) {
-                    if (!$a_isset && !$b_isset) return 1;
-                    return $direction_int * ($a_isset && !$b_isset ? 1 : -1);
+                    $result = 0;
+                    if ($a_isset xor $b_isset) {
+                        $result = $a_isset && !$b_isset ? 1 : -1;
+                    }
+                } else if ($compare_function === null) {
+                    $result = $a[$key] - $b[$key];
+                } else {
+                    $result = $compare_function($a[$key], $b[$key]);
                 }
-                if ($compare_function === null) {
-                    return $direction_int * ($a[$key] - $b[$key]);
+                $result *= $direction_int;
+                if ($result === 0) {
+                    return self::$php_sort_direction;
                 }
-                return  $compare_function($a[$key], $b[$key]) * $direction_int;
+                return $result;
             };
-
             usort($array, $usort_function);
         }
-
         return $array;
     }
 

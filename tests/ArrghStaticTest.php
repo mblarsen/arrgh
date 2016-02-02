@@ -158,8 +158,13 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         ];
 
         $sorted_by_age_mod2 = Arrgh::sortBy($array, function ($a, $b) {
-            return ($a["age"] % 2) - ($b["age"] % 2);
+            $value = ($a["age"] % 2) - ($b["age"] % 2);
+            if ($value === 0) {
+                return strcmp($a["name"], $b["name"]);
+            }
+            return $value;
         });
+
         $this->assertEquals([
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
