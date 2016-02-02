@@ -1,5 +1,7 @@
 # Arrgh
 
+[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh)
+
 A cleanup of the messy array API in PHP. 
 
 PHP is known for its many messy APIs. Bad naming, order of arguments, passing by reference or returning a value.
