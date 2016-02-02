@@ -3,7 +3,7 @@
 class ArrghStaticTest extends PHPUnit_Framework_TestCase
 {
     static private $simple_array = [1, 2, 3, 4, 5];
-    static private $simple_assoc_array = [
+    static private $simple_array_negative = [
     static private $simple_assoc_array = [
         "banana" => 1,
         "lemon"  => 2,
