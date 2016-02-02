@@ -1,6 +1,7 @@
 language: php
 
 before_script: 
+  - composer require satooshi/php-coveralls
   - composer install --no-dev
   
 php:
@@ -9,4 +10,5 @@ php:
   - nightly
 
 after_success:
-  - travis_retry php vendor/bin/coveralls
+  - travis_retry php vendor/bin/coveralls -v
+
