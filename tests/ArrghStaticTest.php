@@ -322,6 +322,11 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
+            [ ["Mona"], ["Joe"] ],
+            Arrgh::get($array, "children.0.name")
+        );
+
+        $this->assertEquals(
             [ "Lisa" ],
             Arrgh::get($array, "children.1.name", $collapse = true)
         );
@@ -333,7 +338,7 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             [ "Lisa", "Joe" ],
-            Arrgh::get($array, "children.!>.name", $collapse = true)
+            Arrgh::get($array, "children.-1.name", $collapse = true)
         );
 
         $this->assertEquals( [null, null, null], Arrgh::get($array, "dad"));
@@ -348,7 +353,8 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
                     function ($item, $index) {
                         return $item['sex'] === 'female';
                     }
-                ]
+                ],
+                $collapse = true
             )
         );
 
@@ -367,9 +373,14 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        // $this->assertEquals(
-        //     [ [ "name" => "Mona", "sex" => "female" ] ],
-        //     Arrgh::get($array, "0.children.0")
-        // );
+        $this->assertEquals(
+            [ "name" => "Mona", "sex" => "female" ],
+            Arrgh::get($array, "0.children.0")
+        );
+
+        $this->assertEquals(
+            "Mona",
+            Arrgh::get($array, "0.children.0.name")
+        );
     }
 }

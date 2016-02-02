@@ -36,25 +36,25 @@ class Arrgh implements ArrayAccess, Iterator
     {
         return $this->array;
     }
-    
+
     public function keepChain($value = true)
     {
         $this->terminate = !$value;
         return $this;
     }
-    
+
     /* ArrayAccess */
     public function offsetExists($offcet)
     {
         return isset($this->$array[$offset]);
     }
-    
+
     /* ArrayAccess */
     public function offsetGet($offset)
     {
         return isset($this->array[$offset]) ? $this->array[$offset] : null;
     }
-    
+
     /* ArrayAccess */
     public function offsetSet($offset, $value)
     {
@@ -64,13 +64,13 @@ class Arrgh implements ArrayAccess, Iterator
             $this->array[$offset] = $value;
         }
     }
-    
+
     /* ArrayAccess */
     public function offsetUnset($offset)
     {
         unset($this->array[$offset]);
     }
-    
+
     /* Iterator */
     public function current()
     {
@@ -174,7 +174,7 @@ class Arrgh implements ArrayAccess, Iterator
         if ($object && !in_array($matching_function, self::$starters)) {
             array_unshift($args, $object->array);
         }
-        
+
         // If some arrays are Arrghs map to array
         $args = array_map(function ($arg) { return $arg instanceof Arrgh ? $arg->array : $arg; }, $args);
 
@@ -365,6 +365,14 @@ class Arrgh implements ArrayAccess, Iterator
         return $result[0];
     }
 
+    /**
+     *  Get for multi-dimensional arrays
+     *
+     *  @param array      An array to query on
+     *  @param path|array A string representing the path to traverse.
+     *                    Optionally pass as [ $path, ...$functions ] if `!$` is used
+     *  @param bool       Collapse resulting data-set
+     */
     static private function arrgh_get($array, $path, $collapse = false)
     {
         $path_string = $path;
@@ -373,10 +381,6 @@ class Arrgh implements ArrayAccess, Iterator
         }
         $path_segments = explode(".", $path_string);
         $result = self::_arrgh_get_traverse($array, $path_segments, $collapse, /* functions */ $path );
-        // Re-index collection
-        // if (Arrgh::arrgh_is_collection($result)) {
-            // return array_values($result);
-        // }
         return $result;
     }
 
@@ -388,8 +392,9 @@ class Arrgh implements ArrayAccess, Iterator
 
         $next_node = null;
 
-        if (in_array($next_key, ['!$'])) {
-            if ($is_collection && $next_key === '!$') {
+        // Apply custom function
+        if ($next_key === '!$' && $is_collection) {
+            if ($is_collection) {
                 $function  = array_shift($functions);
                 $data      = array_values(array_filter($data, $function, ARRAY_FILTER_USE_BOTH));
                 $next_key  = array_shift($path);
@@ -397,18 +402,27 @@ class Arrgh implements ArrayAccess, Iterator
                 throw new Exception("Invalid path trying to invoke function on non-collection");
             }
         }
-        if ($plug_index !== null || in_array($next_key, ["!>"])) {
+
+        // Select data either by index or key
+        if ($plug_index !== null) {
+            $count = count($data);
             if ($is_collection) {
-                if ($plug_index !== null && isset($data[$plug_index])) {
+                // Adjust negative index
+                if ($plug_index < 0) {
+                    $plug_index = $count === 1 ? 0 : $count + ($plug_index % $count);
+                }
+
+                // Plug data
+                if (isset($data[$plug_index])) {
                     $next_node = $data[$plug_index];
-                } else if ($next_key === '!>') {
-                    $next_node = array_pop($data);
                 }
             } else {
                 throw new Exception("Invalid path trying to plug item but data is not a collection");
             }
         } else {
-            if ($next_key !== null) {
+            if ($next_key === null) {
+                $next_node = $data;
+            } else {
                 if ($is_collection) {
                     $next_node = array_map(function ($item) use ($next_key) {
                         if ($item !== null && array_key_exists($next_key, $item)) {
@@ -421,15 +435,15 @@ class Arrgh implements ArrayAccess, Iterator
                         $next_node = $data[$next_key];
                     }
                 }
-            } else {
-                $next_node = $data;
             }
         }
 
-        if ($next_node === null) {
+        // If nothing matched break path and return
+        if (empty($next_node)) {
             return null;
         }
 
+        // If path is at the end return
         if (count($path) === 0) {
             if (is_array($next_node) && $collapse) {
                 return array_filter($next_node);
@@ -439,39 +453,55 @@ class Arrgh implements ArrayAccess, Iterator
 
         // If path is not completed
         if (is_array($next_node)) {
-            if (empty($next_node)) {
-                return $next_node;
-            }
 
             // Recurse
-            $array_keys = array_keys($next_node);
-            if (Arrgh::arrgh_is_collection($next_node)) {
-                if ($collapse
-                    && !is_numeric($path[0])
-                    && !in_array($path[0], ["!>", "!$"])
+            $node_is_collection = Arrgh::arrgh_is_collection($next_node);
+            $node_depth = Arrgh::arrgh_depth($next_node);
+
+            if ($node_is_collection) {
+                // Collapse collections
+                if ($collapse                  // if enabled
+                    && !is_numeric($path[0])   // if next path segment is not an index
+                    && $path[0] !== "!$"       // if not the result of a custom function
+                    && $node_depth > 1         // if array of arrays
                 ) {
                     $next_node = Arrgh::arrgh_collapse($next_node);
                 }
-                $sub_result = [];
-                foreach ($next_node as $node) {
-                    if ($node === null) {
-                        $sub_result[] = null;
-                    } else {
-                        $sub_result[] = self::_arrgh_get_traverse($node, $path, $collapse, $functions);
+
+                if (is_numeric($path[0]) && $node_depth <= 1) {
+                    $result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
+                } else {
+                    // Collect data from sub-tree
+                    $result = [];
+                    foreach ($next_node as $node) {
+                        if ($node === null) {
+                            $result[] = null;
+                        } else {
+                            $partial = self::_arrgh_get_traverse($node, $path, $collapse, $functions);
+                            if ($collapse) {
+                                $result[] = $partial;
+                            } else {
+                                $result[] = [ $partial ];
+                            }
+                        }
                     }
                 }
 
                 // Since collection functions inject an array segment we must collapse the result
-                if (in_array($path[0], ["!$"])) {
-                    $sub_result = Arrgh::arrgh_collapse($sub_result);
+                if ($path[0] === "!$") {
+                    $result = Arrgh::arrgh_collapse($result);
                 }
             } else {
-                $sub_result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
+                $result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
             }
-            if (is_array($sub_result)) {
-                return array_filter($sub_result);
+            if (is_array($result)) {
+                // Collapse collections greater than 2
+                if (Arrgh::arrgh_depth($result) > 2) {
+                    $result = Arrgh::arrgh_collapse($result);
+                }
+                return array_filter($result);
             }
-            return $sub_result;
+            return $result;
         }
         throw new Exception("Next node in path is not an array");
     }
@@ -484,6 +514,17 @@ class Arrgh implements ArrayAccess, Iterator
         return false;
     }
 
+    static private function arrgh_depth($array)
+    {
+        $depth = 0;
+        $child = $array; ;
+        while(Arrgh::arrgh_is_collection($child)) {
+            $depth += 1;
+            $child = $child[0];
+        }
+        return $depth;
+    }
+
     static private $arrgh_functions = [
         "map_ass",
         "sort_by",
@@ -493,6 +534,7 @@ class Arrgh implements ArrayAccess, Iterator
         "only",
         'get',
         'is_collection',
+        'depth',
     ];
 
     static private $simple_functions = [

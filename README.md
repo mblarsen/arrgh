@@ -55,23 +55,33 @@ Powerful get function using dot-paths:
     Arrgh::get($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
     Arrgh::get($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
     
-    // Use buil-in select functions, select by index: 
-    Arrgh::get($array, "children.0.name");
-    Arrgh::get($array, "children.1.name");
+Use buil-in select functions, select by index: 
+
+    Arrgh::get($array, "children.0.name");    // returns [ ["Mona"], ["Joe"] ]
+    Arrgh::get($array, "children.1.name");    // returns [ ["Lisa"] ]
     
-    // or use built-in select functions, all last-borns
+... or use built-in select functions, all last-borns
+
     Arrgh::get($array, "children.!>.name");
 
-    // or role your own select functions, return non-child bearing over age 35
-    Arrgh::get(
-        $array, 
-        [
-            "!$", 
-            function ($item, $index) {
-                return !isset($item["children"]) && $item["age"] > 35;
-            }
-        ]
-    );
+... or role your own select functions, return names of all female children
+
+    $children = arrgh($array)->get([ "children.!$.name",
+        function ($item, $index) { return $item['sex'] === 'female'; }
+    ])->toArray();
+
+To achieve the same using chain API (which is also pretty concise) it looks like this: 
+
+    $children = arrgh($array)
+        ->map(function ($person) { return isset($person["children"]) ? $person["children"] : null; })
+        ->filter()   // remove nulls
+        ->collapse() // make one array of all children
+        ->map(function ($child) { 
+            if ($child["sex"] === "female") { return $child["name"]; }
+            return null;
+        })
+        ->filter()   // remove nulls
+        ->toArray();
 
 ![Functional example](https://www.dropbox.com/s/lubr0zvjm0eug87/arrgh-functional.png?dl=1)
 
@@ -110,7 +120,6 @@ All functions that takes one or more arrays now takes them as their first argume
         
     in_​array($key, $array)
         => ($array, $key)
-
 
 ## All functions returns
 
@@ -280,12 +289,13 @@ But then you get:
    * `only(array, key|array)`: Like `except` but will only return items with the keys in `key|array`.
    * `get(array, path)`: A powerful getter of multidimensional arrays.
    * `isCollection(array)`: Tells if an array is a collection (as opposed ot an associative array)
+   * `depth(array)`: Tells the depth of arrays of arrays (excluding associative arrays)
 
 ## Works like array
 
 _Arrgh_ implements `ArrayAccess` and `Iterator`, so you can use it as an array.
 
-Here is an exapmle using foreach:
+Here is an example using foreach:
 
     $arr = arrgh([1, 2, 3, 4, 5]);
     foreach ($arr as $value) {
@@ -307,18 +317,23 @@ Array values are returned as `Arrgh` objects:
     }
     $content->toArray(); // returns array [ 1, 2, 3, 4, 5 ];
 
-Note: PHP's native functions can only take arrays as paramters, so that is a limitation. But you are not using them anyway are you?
+Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?
 
 ## Change log
+
+**v0.5.0**
+
+* Fixed: Collapsing was not reliable, fixed + unittests added
+* Changed: `!>` replaced with option to use negative index. So `children.!>.name` to get name of last child is now: `children.-1.name`
+* New: Added `depth()`
 
 **v0.4.0**
 
 * New: Implements ArrayAccess and Iterator. Iterator returns Arrgh instead of arrays.
-* New: Arrgh objects can be passed as arguments instead of arrays.
+* New: _Arrgh_ objects can be passed as arguments instead of arrays.
 * New: _copyValue_ type functions like `array_pop` that changes the array but also returns a value
   now sets the array to it can be access with `toArray()`.
 * New: Default behaviour of value functions is to return the value. E.g. `pop()`. The new function `keepChain()` will return the `Arrgh` object rather than the value.
-  
 
 **v0.3.0**
 
