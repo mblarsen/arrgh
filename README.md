@@ -350,3 +350,7 @@ Note: PHP's native functions can only take arrays as parameters, so that is a li
 
 * Added: `get()` function <kbd>[see examples](#examples)</kbd>
 * Added: `isCollection()` function
+
+## TODO
+
+* Change unpacking to calls of native functions that uses pass-by-reference to use `call_user_func_array` since `hhvm` doesn't support it.
