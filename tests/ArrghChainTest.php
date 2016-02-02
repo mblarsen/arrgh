@@ -44,4 +44,17 @@ class ArrghChainTest extends PHPUnit_Framework_TestCase
             function ($item, $index) { return $item['sex'] === 'female'; }
         ], true)->toArray());
     }
+    
+    public function testArrghOnArrgh()
+    {
+        $arr_inner = new Arrgh([1, 2 ,3]);
+        $arr_out = new Arrgh($arr_inner);
+        $this->assertEquals([1, 2, 3], $arr_out->toArray());
+    }
+    
+    public function testSwapTwoFirstType()
+    {
+        $this->assertTrue(Arrgh::keyExists([ "foo" => "bar"], "foo"));
+        $this->assertTrue(Arrgh::inArray([42], 42));
+    }
 }

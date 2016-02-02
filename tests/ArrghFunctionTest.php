@@ -94,8 +94,14 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $arr = arrgh([1, 2, 3, 4, 5]);
         $this->assertEquals(15, $arr->sum());
         $arr[] = 6;
-        $this->assertEquals(21, $arr->sum());
+        $this->assertTrue(isset($arr[5]));
+        $pos5 = $arr[5];
+        $this->assertEquals(6, $pos5);
+        $arr[5] = 7;
+        $this->assertEquals(22, $arr->sum());
         $this->assertEquals(15, $arr->keepChain()->pop()->keepChain(false)->sum());
+        unset($arr[4]);
+        $this->assertEquals(10, $arr->sum());
     }
     
     public function testIterator()

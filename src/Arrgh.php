@@ -50,9 +50,9 @@ class Arrgh implements ArrayAccess, Iterator
     }
 
     /* ArrayAccess */
-    public function offsetExists($offcet)
+    public function offsetExists($offset)
     {
-        return isset($this->$array[$offset]);
+        return isset($this->array[$offset]);
     }
 
     /* ArrayAccess */
@@ -409,7 +409,7 @@ class Arrgh implements ArrayAccess, Iterator
         $next_node = null;
 
         // Apply custom function
-        if ($next_key === '!$' && $is_collection) {
+        if ($next_key === '!$') {
             if ($is_collection) {
                 $function  = array_shift($functions);
                 $data      = array_values(array_filter($data, $function, ARRAY_FILTER_USE_BOTH));
@@ -628,7 +628,7 @@ class Arrgh implements ArrayAccess, Iterator
         "array_key_exists",
         "array_search",
         "implode",
-        "in_​array",
+        "in_array",
         "join",
     ];
     static private $starters = [

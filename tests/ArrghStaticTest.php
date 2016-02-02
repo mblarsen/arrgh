@@ -388,4 +388,56 @@ class ArrghStaticTest extends PHPUnit_Framework_TestCase
             Arrgh::get($array, "0.children.0.name")
         );
     }
+    
+    public function testStartChain()
+    {
+        $this->assertEquals(42, arrgh([42])->pop());
+        $this->assertEquals(42, Arrgh::arrgh([42])->pop());
+        $this->assertEquals(42, Arrgh::chain([42])->pop());
+        $this->assertEquals(42, (new Arrgh([42]))->pop());
+        $this->assertEquals(42, arrgh(arrgh([42]))->pop());
+        $this->assertEquals(42, Arrgh::_filter([42])->pop());
+        $this->assertEquals(42, Arrgh::_range(0, 42)->pop());
+        
+    }
+    
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidMethod()
+    {
+        Arrgh::foobar([42]);
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testInvalidFunctionPath()
+    {
+        $array = [
+            [ "name" => "Jakob", "age" => 37, "zip_code" => 2100 ],
+            [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
+            [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
+        ];
+        
+        $this->assertEquals(["Jakob"], 
+            Arrgh::get(
+                $array, 
+                [
+                    "!$.name", 
+                    function ($item, $index) { return $item["name"] === "Jakob"; }
+                ]
+            )
+        );
+
+        $this->assertEquals(["Jakob"], 
+            Arrgh::get(
+                $array, 
+                [
+                    "name.!$", 
+                    function ($item, $index) { return $item["name"] === "Jakob"; }
+                ]
+            )
+        );
+    }
 }
