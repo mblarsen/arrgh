@@ -323,6 +323,11 @@ Note: PHP's native functions can only take arrays as parameters, so that is a li
 
 ## Change log
 
+**v0.5.4**
+
+* Bugfixes
+* New: Global functions are now prebuild for `arrgh` prefix
+
 **v0.5.1**
 
 * Bugfix: sortBy DESC for array with two items would fail
