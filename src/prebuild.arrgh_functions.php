@@ -198,6 +198,14 @@ function arrgh_count()
 {
     return Arrgh::count(...func_get_args());
 }
+function arrgh_max()
+{
+    return Arrgh::max(...func_get_args());
+}
+function arrgh_min()
+{
+    return Arrgh::min(...func_get_args());
+}
 function arrgh_range()
 {
     return Arrgh::range(...func_get_args());

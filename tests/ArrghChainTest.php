@@ -2,59 +2,44 @@
 
 class ArrghChainTest extends PHPUnit_Framework_TestCase
 {
-    public function testExclaim()
+    public function testStartChain()
     {
-        $input = [1, 10, 100];
-        $this->assertEquals(
-            [100, 10, 1],
-            arrgh($input)
-                ->map(function ($i) { return log10($i); })
-                ->reverse()
-                ->map(function ($i) { return pow(10, $i); })
-                ->toArray()
-        );
+        // Function constructor
+        $this->assertEquals(42, arrgh([42])->pop());
+        // Static constructors
+        $this->assertEquals(42, Arrgh::arrgh([42])->pop());
+        $this->assertEquals(42, Arrgh::chain([42])->pop());
+        // Object constructor
+        $this->assertEquals(42, (new Arrgh([42]))->pop());
+        // Create from Arggh object
+        $this->assertEquals(42, arrgh(arrgh([42]))->pop());
+        // Static chain method prefix
+        $this->assertEquals(42, Arrgh::_filter([42])->pop());
+        $this->assertEquals(42, Arrgh::_range(0, 42)->pop());
     }
-    
-    public function testChildren()
-    {
-        $array = [
-            [ "name" => "Jakob", "age" => 37, "children" => [
-                [ "name" => "Mona", "sex" => "female" ],
-                [ "name" => "Lisa", "sex" => "female" ],
-            ] ],
-            [ "name" => "Topher", "age" => 18, "children" => [
-                [ "name" => "Joe", "sex" => "male" ],
-            ] ],
-            [ "name" => "Ginger", "age" => 43 ],
-        ];
 
-        $children = arrgh($array)
-            ->map(function ($person) { return isset($person["children"]) ? $person["children"] : null; })
-            ->filter()   // remove nulls
-            ->collapse() // make one array of all children
-            ->map(function ($child) { 
-                if ($child["sex"] === "female") { return $child["name"]; }
-                return null;
-            })
-            ->filter()   // remove nulls
-            ->toArray();
-        $this->assertEquals([ "Mona", "Lisa" ], $children);
-        
-        $this->assertEquals([ "Mona", "Lisa" ], arrgh($array)->get([ "children.!$.name",
-            function ($item, $index) { return $item['sex'] === 'female'; }
-        ], true)->toArray());
+    public function testTerminators()
+    {
+        $input = [1, 2, 3, 4, 5];
+        $this->assertEquals(5, arrgh($input)->pop());
+        $this->assertEquals(15, arrgh($input)->sum());
+        $this->assertEquals(5, arrgh($input)->count());
+        $this->assertEquals("1,2,3,4,5", arrgh($input)->join(","));
+        $this->assertEquals(5, arrgh($input)->max());
+        $this->assertEquals(1, arrgh($input)->min());
+        $this->assertEquals(5, arrgh($input)->sizeof());
     }
-    
-    public function testArrghOnArrgh()
+
+    public function testKeepChain()
+    {
+        $input = [1, 2, 3, 4, 5];
+        $this->assertEquals(10, arrgh($input)->keepChain()->pop()->keepChain(false)->sum());
+    }
+
+    public function testArrghInput()
     {
         $arr_inner = new Arrgh([1, 2 ,3]);
         $arr_out = new Arrgh($arr_inner);
         $this->assertEquals([1, 2, 3], $arr_out->toArray());
-    }
-    
-    public function testSwapTwoFirstType()
-    {
-        $this->assertTrue(Arrgh::keyExists([ "foo" => "bar"], "foo"));
-        $this->assertTrue(Arrgh::inArray([42], 42));
     }
 }

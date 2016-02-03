@@ -43,10 +43,18 @@ class Arrgh implements ArrayAccess, Iterator
         return $this->array;
     }
 
+    public function keep()
+    {
+        return $this->keepChain(true);
+    }
     public function keepChain($value = true)
     {
         $this->terminate = !$value;
         return $this;
+    }
+    public function breakChain()
+    {
+        return $this->keepChain(false);
     }
 
     /* ArrayAccess */
@@ -594,6 +602,8 @@ class Arrgh implements ArrayAccess, Iterator
         "array_unique",
         "array_values",
         "count",
+        "max",
+        "min",
         "range",
         "sizeof",
     ];
@@ -641,6 +651,8 @@ class Arrgh implements ArrayAccess, Iterator
         "array_sum",
         "count",
         "join",
+        "max",
+        "min",
         "sizeof",
     ];
 }

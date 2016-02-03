@@ -323,6 +323,11 @@ Note: PHP's native functions can only take arrays as parameters, so that is a li
 
 ## Change log
 
+**v0.5.5**
+
+* New: `min()` and `max` added
+* Added script to build functions in case anyone needs it
+
 **v0.5.4**
 
 * Bugfixes
