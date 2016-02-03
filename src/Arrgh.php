@@ -157,14 +157,20 @@ class Arrgh implements ArrayAccess, Iterator
             "_copyValue"    => self::$mutable_value_functions,
         ];
     }
-
-    /* Transforms the incoming calls to native calls */
-    static private function invoke($method, $args, $object = null)
+    
+    static public function getPhpSortDirection()
     {
         if (self::$php_version === null) {
             self::$php_version = explode(".", phpversion());
             self::$php_sort_direction = self::$php_version[0] >= 7 ? self::PHP_SORT_DIRECTION_7 : self::PHP_SORT_DIRECTION_56;
         }
+        return self::$php_sort_direction;
+    }
+
+    /* Transforms the incoming calls to native calls */
+    static private function invoke($method, $args, $object = null)
+    {
+        self::getPhpSortDirection();
 
         $snake = strtolower(preg_replace('/\B([A-Z])/', '_\1', $method));
         $function_name = $snake;

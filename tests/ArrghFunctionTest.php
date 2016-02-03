@@ -2,9 +2,25 @@
 
 class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 {
-    public function before()
+    private $string_compare_function;
+    private $number_compare_function;
+
+    public function setup()
     {
-        new Arrgh();
+        $this->string_compare_function = function ($a, $b) { 
+            $result = $a - $b;
+            if ($result === 0) {
+                return Arrgh::getPhpSortDirection();
+            }
+            return $result;
+        };
+        $this->number_compare_function = function ($a, $b) {
+            $result = strcasecmp($a, $b);
+            if ($result === 0) {
+                return Arrgh::getPhpSortDirection();
+            }
+            return $result;
+        };
     }
 
     public function testArrgh()
@@ -204,8 +220,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     {
         $input1 = [ "a" => 2, "b" => 4, "c" => 8 ];
         $input2 = [ "b" => 2, "c" => 4, "d" => 8 ];
-        $compare_function = function ($a, $b) { return $a - $b; };
-        $this->assertEquals(["a" => 2, "b" => 4], arrgh_diff_uassoc($input1, $input2, $compare_function));
+        $this->assertEquals(["a" => 2, "b" => 4, "c" => 8], arrgh_diff_uassoc($input1, $input2, $this->number_compare_function));
     }
 
     public function testDiffUkey()
@@ -446,7 +461,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     {
         $input = [ "a", "b", "c" ];
         $sum = 0;
-        $output = arrgh_walk($input, function (&$item, $key, $prefix) use (&$sum){
+        $output = arrgh_walk($input, function (&$item, $key, $prefix) use (&$sum) {
             $item = $prefix . $item;
             $sum += $key;
         }, "|");
