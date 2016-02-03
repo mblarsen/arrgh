@@ -2,11 +2,6 @@
 
 class ArrghArrayAccessTest extends PHPUnit_Framework_TestCase
 {
-    public function before()
-    {
-        new Arrgh();
-    }
-
     public function testArrayAccess()
     {
         $arr = arrgh([1, 2, 3, 4, 5]);

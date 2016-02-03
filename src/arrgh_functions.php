@@ -1,5 +1,5 @@
 <?php
-if (!defined("ARRGH_IS_DEFINED")) {
+if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
     $arrgh_prefix = defined("ARRGH_PREFIX") ? ARRGH_PREFIX : "arrgh";
     
     if ($arrgh_prefix === "arrgh") {
@@ -29,6 +29,6 @@ if (!defined("ARRGH_IS_DEFINED")) {
     }
 
     // Define so it will not be defiend again
-    define("ARRGH_IS_DEFINED", true);
+    if (!defined("ARRGH_IS_DEFINED")) define("ARRGH_IS_DEFINED", true);
 }
 

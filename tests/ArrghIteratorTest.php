@@ -2,11 +2,6 @@
 
 class ArrghIteratorTest extends PHPUnit_Framework_TestCase
 {
-    public function before()
-    {
-        new Arrgh();
-    }
-
     public function testIterator()
     {
         $arr = arrgh([1, 2, 3, 4, 5]);
