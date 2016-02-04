@@ -44,7 +44,6 @@ Chain functions together:
 
     arrgh($input)->reverse()->slice(0, 5)->sum();
 
-
 Powerful get function using _dot-paths_:
 
     // People and their children
@@ -67,16 +66,15 @@ Use buil-in select functions, select by index:
 
     arrgh_get($array, "children.0.name");    // returns [ ["Mona"], ["Joe"] ]
     arrgh_get($array, "children.1.name");    // returns [ ["Lisa"] ]
+    arrgh_get($array, "children.-1.name");   // returns [ ["Lisa"], ["Joe"] ]
 
-... or use built-in select functions, all last-borns
-
-    arrgh_get($array, "children.-1.name");
-
-... or role your own select functions, return names of all female children
+... or role your own select functions, return names of all female children:
 
     $children = arrgh($array)->get([ "children.!$.name",
         function ($item, $index) { return $item['sex'] === 'female'; }
     ])->toArray();
+    
+    // returns [ Mona, Lisa ]
 
 To achieve the same using chain API (which is also pretty concise) it looks like this:
 
@@ -109,23 +107,12 @@ Example usage:
 
 All functions that takes one or more arrays now takes them as their first arguments:
 
-    array_key_exists($key, $array)
-        => ($array, $key)
-
-    array_map($callable, $array[, ..., arrayN])
-        => ($array[, ..., arrayN], $callable)
-
-    array_search($search, $array)
-        => ($array, $search)
-
-    implode($glue, $array)
-        => ($array, $glue);
-
-    join($glue, $array)
-        => ($array, $glue);
-
-    in_​array($key, $array)
-        => ($array, $key)
+    array_key_exists($key, $array)         => ($array, $key)
+    in_​array($key, $array)                 => ($array, $key)
+    array_search($search, $array)          => ($array, $search)
+    implode($glue, $array)                 => ($array, $glue);
+    join($glue, $array)                    => ($array, $glue);
+    array_map($callable, $array[, arrayN]) => ($array[, arrayN], $callable)
 
 ## All functions returns
 
@@ -133,9 +120,9 @@ Most of the functions that makes alterations to arrays like sorting all pass the
 
     usort ( array &$array , callable $value_compare_func )
 
-This make functional programming difficult or less fluent in PHP.
+This make functional programming difficult and less fluent in PHP.
 
-In _Arrgh_ all array functions will return an array, unless of course a value is being computed.
+In _Arrgh_ all array functions will return an array, unless of course a value is being computed (`sum`, `pop`, `min`, `max`, etc).
 
 These functions will now return a result:
 
@@ -163,9 +150,9 @@ Or you could use chains like this <kbd>[see more below &darr;](#chain-style)</kb
 
 _Arrgh_ comes in three styles for your temperament:
 
-* Function style
-* Static class style
-* Chainable object style
+* [Function style](#function-style)
+* [Static style](#static-style)
+* [Chain style](#chain-style)
 
 ### Function style
 
@@ -177,7 +164,7 @@ The constructor function `aargh()` lets you start a chain:
 
     arrgh($defaults)->replace($params);
 
-**Note**: See [How to use](#how-to-use) on how to enable function-style.
+_Note: See [How to use](#how-to-use) on how to enable function-style._
 
 ### Static style
 
@@ -230,7 +217,7 @@ When you are working with objects all methods returns an object, not an actual a
 
     $media->toArray();
 
-Note: _Arrgh_ implements both [ArrayAccess<sup>php</sup>](http://php.net/manual/en/class.arrayaccess.php) and [Iterator<sup>php</sup>](http://php.net/manual/en/class.iterator.php) so you can [use an Arrgh object as an array](#works-like-array).
+_Note: *Arrgh* implements both [ArrayAccess<sup>php</sup>](http://php.net/manual/en/class.arrayaccess.php) and [Iterator<sup>php</sup>](http://php.net/manual/en/class.iterator.php) so you can [use an Arrgh object as an array](#works-like-array)._
 
 In case you want to preserve the array rather than the result of a terminating functions like e.g. `pop()`, you can use `keepChain()`:
 
@@ -303,7 +290,7 @@ Array values are returned as `Arrgh` objects:
     }
     $content->toArray(); // returns array [ 1, 2, 3, 4, 5 ];
 
-Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?
+_Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?_
 
 ## Change log
 
