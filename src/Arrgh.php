@@ -8,7 +8,7 @@
 class Arrgh implements ArrayAccess, Iterator
 {
     const PHP_SORT_DIRECTION_56 = 1;
-    const PHP_SORT_DIRECTION_7 = -1;
+    const PHP_SORT_DIRECTION_7 = 0;
         
     private $array;
     private $array_position;
