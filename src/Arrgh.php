@@ -14,6 +14,7 @@ class Arrgh implements ArrayAccess, Iterator
     private $array_position;
     private $original_array;
     private $terminate;
+    private $keep_once;
     private $last_value;
 
     private static $php_version;
@@ -47,9 +48,14 @@ class Arrgh implements ArrayAccess, Iterator
     {
         return $this->keepChain(true);
     }
-    public function keepChain($value = true)
+    public function keepOnce()
+    {
+        return $this->keepChain(true, true);
+    }
+    public function keepChain($value = true, $keep_once = false)
     {
         $this->terminate = !$value;
+        $this->keep_once = $keep_once;
         return $this;
     }
     public function breakChain()
@@ -210,6 +216,10 @@ class Arrgh implements ArrayAccess, Iterator
             if (in_array($matching_function, self::$terminators)) {
                 if ($object->terminate) {
                     return $result;
+                }
+                if ($object->keep_once) {
+                    $object->terminate = true;
+                    $object->keep_once = false;
                 }
                 $object->last_value = $result;
                 return $object;

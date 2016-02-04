@@ -232,6 +232,24 @@ When you are working with objects all methods returns an object, not an actual a
 
 Note: _Arrgh_ implements both [ArrayAccess<sup>php</sup>](http://php.net/manual/en/class.arrayaccess.php) and [Iterator<sup>php</sup>](http://php.net/manual/en/class.iterator.php) so you can [use an Arrgh object as an array](#works-like-array).
 
+In case you want to preserve the array rather than the result of a terminating functions like e.g. `pop()`, you can use `keepChain()`:
+
+    arrgh([1, 2, 3])->pop(); // will return 3
+
+With use of `keepChain()` we'll get the array instead:
+
+    arrgh([1, 2, 3])->keepChain()->pop(); // will return an Arrgh object with the array [1, 2]
+    
+If you want to break the chain again. For example to get the sum of the remaining elements you can:
+
+    arrgh([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
+    
+If `->keepChain(false)` had been left out `sum()` would also have returned the `Arrgh` object.
+
+The same expression can be written using `keepOnce()`:
+
+    arrgh([1, 2, 3])->keepOnce()->pop()->sum(); // returns 3
+
 ## All functions are there
 
 All the functions from the PHP manual [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.array.php) section are supported.
@@ -288,6 +306,10 @@ Array values are returned as `Arrgh` objects:
 Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?
 
 ## Change log
+
+**v0.5.7**
+
+* New: `keepOnce()` added. Will break the chain after keeping it once
 
 **v0.5.5**
 

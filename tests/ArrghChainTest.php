@@ -35,6 +35,12 @@ class ArrghChainTest extends PHPUnit_Framework_TestCase
         $input = [1, 2, 3, 4, 5];
         $this->assertEquals(10, arrgh($input)->keepChain()->pop()->keepChain(false)->sum());
     }
+    
+    public function testKeepChainOnce()
+    {
+        $input = [1, 2, 3, 4, 5];
+        $this->assertEquals(10, arrgh($input)->keepOnce()->pop()->sum());
+    }
 
     public function testArrghInput()
     {
