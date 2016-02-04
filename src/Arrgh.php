@@ -164,13 +164,16 @@ class Arrgh implements ArrayAccess, Iterator
         ];
     }
     
-    static public function getPhpSortDirection()
+    static public function getPhpSortDirection($direction = null)
     {
         if (self::$php_version === null) {
             self::$php_version = explode(".", phpversion());
             self::$php_sort_direction = self::$php_version[0] >= 7 ? self::PHP_SORT_DIRECTION_7 : self::PHP_SORT_DIRECTION_56;
         }
-        return self::$php_sort_direction;
+        if ($direction === null || $direction === 0) {
+            return self::$php_sort_direction;
+        }
+        return $direction;
     }
 
     /* Transforms the incoming calls to native calls */

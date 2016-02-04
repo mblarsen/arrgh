@@ -292,7 +292,58 @@ Array values are returned as `Arrgh` objects:
 
 _Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?_
 
+## PHP5 vs PHP7
+
+At the time of writing if PHP5 and PHP7 treats equal values returned by comparable-functions differently.
+
+For example. The following unittest will fail in PHP 5.6.x and not in 7:
+
+    $original_input = [ 
+        [ "name" => "Jakob", "age" => 42 ],
+        [ "name" => "Topher", "age" => 18 ],
+        [ "name" => "Ginger", "age" => 42 ],
+    ];
+    $expected_result = [ 
+        [ "name" => "Topher", "age" => 18 ],
+        [ "name" => "Jakob", "age" => 42 ],
+        [ "name" => "Ginger", "age" => 42 ],
+    ];
+    
+    $input = $original_input;
+    usort($input, function ($a, $b) {
+        return $a["age"] - $b["age"];
+    });
+    
+    //
+    // Actual ouput in PHP 5.6.x:
+    // [ 
+    //     [ "name" => "Topher", "age" => 18 ],
+    //     [ "name" => "Ginger", "age" => 42 ],
+    //     [ "name" => "Jakob", "age" => 42 ],
+    // ]
+    //
+    // Actual ouput in PHP 7:
+    // [ 
+    //     [ "name" => "Topher", "age" => 18 ],
+    //     [ "name" => "Jakob", "age" => 42 ],
+    //     [ "name" => "Ginger", "age" => 42 ],
+    // ]
+
+PHP5 and PHP7 treats the items in an array with a compare result differently. You have to take this into account if you code for both versions. While PHP5 changes the order, PHP7 does not have this side-effect.
+
+_Arrgh_ elevates this problem by providing the correct integer depending on which version is running. So when running your custom compare functions you can do like this:
+
+    usort($input, function ($a, $b) {
+        return Arrgh::getPhpSortDirection($a["age"] - $b["age"]);
+    });
+
+See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
+
 ## Change log
+
+**v0.5.8**
+
+* Changed: `getPhpSortDirection()` takes a computed direction.
 
 **v0.5.7**
 

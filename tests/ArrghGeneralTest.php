@@ -350,4 +350,81 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             )
         );
     }
+    
+    public function testPhpVersionFail56()
+    {
+        $php_version = explode(".", phpversion());
+        $php_sort_direction = $php_version[0] >= 7 ? Arrgh::PHP_SORT_DIRECTION_7 : Arrgh::PHP_SORT_DIRECTION_56;
+        
+        $original_input = [ 
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        $expected_result = [ 
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        
+        $input = $original_input;
+        usort($input, function ($a, $b) {
+            return $a["age"] - $b["age"];
+        });
+        
+        if ($php_version[0] >= 7) {
+            $this->assertEquals($expected_result, $input);
+        } else {
+            $this->assertNotEquals($expected_result, $input);
+        }
+    }
+
+    public function testPhpVersionFail7()
+    {
+        $php_version = explode(".", phpversion());
+        $php_sort_direction = $php_version[0] >= 7 ? Arrgh::PHP_SORT_DIRECTION_7 : Arrgh::PHP_SORT_DIRECTION_56;
+        
+        $original_input = [ 
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        $expected_result = [ 
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+            [ "name" => "Jakob", "age" => 42 ],
+        ];
+        
+        $input = $original_input;
+        usort($input, function ($a, $b) {
+            return $a["age"] - $b["age"];
+        });
+        
+        if ($php_version[0] >= 7) {
+            $this->assertNotEquals($expected_result, $input);
+        } else {
+            $this->assertEquals($expected_result, $input);
+        }
+    }
+    
+    public function testPhpVersion()
+    {
+        $original_input = [ 
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        $expected_result = [ 
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        
+        $input = $original_input;
+        usort($input, function ($a, $b) {
+            return Arrgh::getPhpSortDirection($a["age"] - $b["age"]);
+        });
+        
+        $this->assertEquals($expected_result, $input);
+    }
 }
