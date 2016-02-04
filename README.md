@@ -4,9 +4,9 @@
 
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
 
-* Arrays as first objects. The existing API for arrays can be very confusing. For some functions the input array is the first paramter on others the last. Moreover some functions returns a result others don't (this mostly has to do with passing of input as reference.)
-* Not a re-write but a remapping of parameters to native functions. E.g. `arrgh_map` movies the `$callable` as the last parameter.
-* Comes in three flavours: functions (`arrgh_map`), static (`Arrgh::map`), objects/chainable (`$array->map()`).
+* Arrays as first parameter. The existing API for arrays can be very confusing. For some functions the input array is the first parameter on others the last. Moreover some functions returns a result others don't (this mostly has to do with passing of input as reference.)
+* Not a re-write but a remapping of parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
+* Comes in three flavors: functions (`arrgh_map`), static (`Arrgh::map`), objects/chainable (`$array->map()`).
 * Adds missing functions like: `map_ass` (associative mapping function), collapse`, `get` (a dot-path getter), `sortBy` and more. (see [Additional functions](#additional-functions))
 * Provides aid for working with sort/compare on both PHP5 and PHP7 which treats equals differently.
 * Lets you use native function names or shorter ones in snake or camelCase. E.g. `$array->array_map()`, `$array->arrayMap()`, `$array->map()`.
@@ -91,7 +91,7 @@ To achieve the same using chain API (which is also pretty concise) it looks like
 
 ## Array as first argument
 
-Not a re-write but a remapping of parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
+_Arrgh_ doesn't rewrite the array algorithms but remaps parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
 
     array_map ( callable $callback , array $array1 [, array $... ] )
 
@@ -252,7 +252,7 @@ These functions are not supported:
 
 ## Additional functions
 
-In addtion to [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.array.php) _Arrgh_ provides these functions:
+In addition to [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.array.php) _Arrgh_ provides these functions:
 
 * `map_ass(array, function)`: Map function that works on associative arrays. Map function `function ($key, $value)`.
 * `sort_by(array, key|function)`: Sort a collection of items by a key or a function. Sort function `function ($item)`.
@@ -306,7 +306,7 @@ _Note: PHP's native functions can only take arrays as parameters, so that is a l
 **v0.5.4**
 
 * Bugfixes
-* New: Global functions are now prebuild for `arrgh` prefix
+* New: Global functions are now pre-build for `arrgh` prefix
 
 **v0.5.1**
 
