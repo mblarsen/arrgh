@@ -7,7 +7,7 @@ The goal of _Arrgh_ is to provide a more uniform library for working with arrays
 * Arrays as first parameter. The existing API for arrays can be very confusing. For some functions the input array is the first parameter on others the last. Moreover some functions returns a result others don't (this mostly has to do with passing of input as reference.)
 * Not a re-write but a remapping of parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
 * Comes in three flavors: functions (`arrgh_map`), static (`Arrgh::map`), objects/chainable (`$array->map()`).
-* Adds missing functions like: `map_ass` (associative mapping function), collapse`, `get` (a dot-path getter), `sortBy` and more. (see [Additional functions](#additional-functions))
+* Adds missing functions like: `map_ass` (associative mapping function), `collapse`, `get` (a dot-path getter), `sortBy` and more. (see [Additional functions](#additional-functions))
 * Provides aid for working with sort/compare on both PHP5 and PHP7 which treats equals differently.
 * Lets you use native function names or shorter ones in snake or camelCase. E.g. `$array->array_map()`, `$array->arrayMap()`, `$array->map()`.
 
