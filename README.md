@@ -152,7 +152,7 @@ You can now do like this:
     // Top 5 most expensive products
     return arrgh_slice(arrgh_usort($products, function ($p1, $p2) { ... }), 0, 5);
 
-Or you could use chains like this (<kbd>[see more below &darr;](#chains))</kbd>
+Or you could use chains like this <kbd>[see more below &darr;](#chains)</kbd>:
 
     // Top 5 most expensive products
     return arrgh($products)
