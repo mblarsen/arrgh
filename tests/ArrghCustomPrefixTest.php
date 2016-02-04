@@ -11,7 +11,6 @@ class ArrghCustomPrefixTest extends PHPUnit_Framework_TestCase
     {
         $arrgh = arr(["a", "b", "c"]);
         $this->assertEquals(["a", "b", "c"], $arrgh->toArray());
-        
         $this->assertEquals(["aa", "bb", "cc"], arr_map($arrgh, function ($item) { return $item . $item; }));
     }
 }
