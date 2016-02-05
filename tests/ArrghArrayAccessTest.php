@@ -25,4 +25,11 @@ class ArrghArrayAccessTest extends PHPUnit_Framework_TestCase
         unset($arr[4]);
         $this->assertEquals(10, $arr->sum());
     }
+
+    // public function testVariadic()
+    // {
+    //     $input = arrgh([1, 2, 3, 4, 5]);
+    //     $output = $input;
+    //     $this->assertEquals($input,  array_merge(...arrgh($input)->chunk(1)));
+    // }
 }

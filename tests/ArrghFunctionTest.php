@@ -324,13 +324,6 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(6, arrgh_product($input));
     }
 
-    public function testRand()
-    {
-        $input = [ "a", "b", "c" ];
-        $random = array_rand($input);
-        $this->assertTrue(in_array($random, array_keys($input)));
-    }
-
     public function testReduce()
     {
         $input = [1, 2, 3];
@@ -746,5 +739,33 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     {
         $input = [1, 2, 5];
         $this->assertEquals(5, arrgh_end($input));
+    }
+
+    public function testRand()
+    {
+        $input = [1, 2, 3, 4];
+        $max = 0;
+        for ($i = 0; $i < 15 ; $i++) {
+            $rand = arrgh_rand($input);
+            if ($rand > $max) {
+                $max = $rand;
+            }
+        }
+        $this->assertEquals(count($input) - 1, $max);
+    }
+
+    public function testShift()
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals(1, arrgh_shift($input));
+        $input = [1, 2, 3, 4];
+        $this->assertEquals(1, arrgh($input)->shift());
+    }
+    public function testUnshift()
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([0, 1, 2, 3, 4], arrgh_unshift($input, 0));
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([0, 1, 2, 3, 4], arrgh($input)->unshift(0)->toArray());
     }
 }
