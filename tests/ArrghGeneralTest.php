@@ -354,8 +354,7 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
     public function testPhpVersionFail56()
     {
         $php_version = explode(".", phpversion());
-        $php_sort_direction = $php_version[0] >= 7 ? Arrgh::PHP_SORT_DIRECTION_7 : Arrgh::PHP_SORT_DIRECTION_56;
-        
+
         $original_input = [ 
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Topher", "age" => 18 ],
@@ -382,8 +381,7 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
     public function testPhpVersionFail7()
     {
         $php_version = explode(".", phpversion());
-        $php_sort_direction = $php_version[0] >= 7 ? Arrgh::PHP_SORT_DIRECTION_7 : Arrgh::PHP_SORT_DIRECTION_56;
-        
+
         $original_input = [ 
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Topher", "age" => 18 ],

@@ -31,7 +31,7 @@ Now `arrgh_reverse` becomes:
 
     arr_reverse([1, 2, 3]);
 
-_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception._
+_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arrgh and arr prefixes, so for these `eval()` is not needed._
 
 ## Examples
 
@@ -73,7 +73,7 @@ Use buil-in select functions, select by index:
     $children = arrgh($array)->get([ "children.!$.name",
         function ($item, $index) { return $item['sex'] === 'female'; }
     ])->toArray();
-    
+
     // returns [ Mona, Lisa ]
 
 To achieve the same using chain API (which is also pretty concise) it looks like this:
@@ -139,7 +139,7 @@ You can now do like this:
     // Top 5 most expensive products
     return arrgh_slice(arrgh_usort($products, function ($p1, $p2) { ... }), 0, 5);
 
-Or you could use chains like this <kbd>[see more below &darr;](#chain-style)</kbd>:
+Or you could use chains like this [[see more below](#chain-style)]:
 
     // Top 5 most expensive products
     return arrgh($products)
@@ -226,11 +226,11 @@ In case you want to preserve the array rather than the result of a terminating f
 With use of `keepChain()` we'll get the array instead:
 
     arrgh([1, 2, 3])->keepChain()->pop(); // will return an Arrgh object with the array [1, 2]
-    
+
 If you want to break the chain again. For example to get the sum of the remaining elements you can:
 
     arrgh([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
-    
+
 If `->keepChain(false)` had been left out `sum()` would also have returned the `Arrgh` object.
 
 The same expression can be written using `keepOnce()`:
@@ -298,32 +298,32 @@ At the time of writing if PHP5 and PHP7 treats equal values returned by comparab
 
 For example. The following unittest will fail in PHP 5.6.x and not in 7:
 
-    $original_input = [ 
+    $original_input = [
         [ "name" => "Jakob", "age" => 42 ],
         [ "name" => "Topher", "age" => 18 ],
         [ "name" => "Ginger", "age" => 42 ],
     ];
-    $expected_result = [ 
+    $expected_result = [
         [ "name" => "Topher", "age" => 18 ],
         [ "name" => "Jakob", "age" => 42 ],
         [ "name" => "Ginger", "age" => 42 ],
     ];
-    
+
     $input = $original_input;
     usort($input, function ($a, $b) {
         return $a["age"] - $b["age"];
     });
-    
+
     //
     // Actual ouput in PHP 5.6.x:
-    // [ 
+    // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Ginger", "age" => 42 ],
     //     [ "name" => "Jakob", "age" => 42 ],
     // ]
     //
     // Actual ouput in PHP 7:
-    // [ 
+    // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Jakob", "age" => 42 ],
     //     [ "name" => "Ginger", "age" => 42 ],
@@ -384,7 +384,7 @@ See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 
 **v0.2.1**
 
-* Added: `get()` function <kbd>[see examples](#examples)</kbd>
+* Added: `get()` function [[see examples](#examples)]
 * Added: `isCollection()` function
 
 ## TODO
