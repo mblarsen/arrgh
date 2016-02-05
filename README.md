@@ -1,6 +1,6 @@
 # Arrgh—a sane PHP array library
 
-[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master)
+[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master) [![Support via Gittip](http://img.shields.io/gittip/mblarsen.svg?style=flat)](https://www.gittip.com/mblarsen/)
 
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
 
