@@ -238,10 +238,6 @@ function arr_join()
 {
     return Arrgh::join(...func_get_args());
 }
-function arr_multisort()
-{
-    return Arrgh::multisort(...func_get_args());
-}
 function arr_push()
 {
     return Arrgh::push(...func_get_args());
@@ -249,6 +245,10 @@ function arr_push()
 function arr_splice()
 {
     return Arrgh::splice(...func_get_args());
+}
+function arr_unshift()
+{
+    return Arrgh::unshift(...func_get_args());
 }
 function arr_walk()
 {
@@ -306,9 +306,17 @@ function arr_usort()
 {
     return Arrgh::usort(...func_get_args());
 }
+function arr_multisort()
+{
+    return Arrgh::multisort(...func_get_args());
+}
 function arr_pop()
 {
     return Arrgh::pop(...func_get_args());
+}
+function arr_shift()
+{
+    return Arrgh::shift(...func_get_args());
 }
 function arr_end()
 {

@@ -80,17 +80,13 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
         ];
 
         $sorted_by_age_mod2 = Arrgh::sortBy($array, function ($a, $b) {
-            $value = ($a["age"] % 2) - ($b["age"] % 2);
-            if ($value === 0) {
-                return strcmp($a["name"], $b["name"]);
-            }
-            return $value;
+            return ($a["age"] % 2) - ($b["age"] % 2);
         });
 
         $this->assertEquals([
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
-            [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
             [ "name" => "Jakob", "age" => 37, "zip_code" => 2100 ],
+            [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ], $sorted_by_age_mod2);
 
         $sorted_by_zip_code_minus_age = Arrgh::sortBy($array, function ($a, $b) {
@@ -230,7 +226,9 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 43 ],
         ];
 
+        $this->assertEquals([ "name" => "Ginger", "age" => 43 ], Arrgh::get($array, 2));
         $this->assertEquals([ "name" => "Ginger", "age" => 43 ], Arrgh::get($array, "2"));
+        $this->assertEquals("Jakob", Arrgh::get($array[0], "name"));
         $this->assertEquals("Ginger", Arrgh::get($array, "2.name"));
         $this->assertEquals([ "Jakob", "Topher", "Ginger" ], Arrgh::get($array, "name"));
         $this->assertEquals(
@@ -418,11 +416,23 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 42 ],
         ];
         
+        // Shows how getSortDirection can return the proper sort direction
         $input = $original_input;
         usort($input, function ($a, $b) {
-            return Arrgh::getPhpSortDirection($a["age"] - $b["age"]);
+            return Arrgh::getSortDirection($a["age"] - $b["age"]);
         });
         
-        $this->assertEquals($expected_result, $input);
+        // Shows that usort callable works without it when using _Arrgh_ methods
+        $input = $original_input;
+        $this->assertEquals($expected_result, Arrgh::usort($input, function ($a, $b) {
+            return $a["age"] - $b["age"];
+        }));
+    }
+    
+    public function testMultisortChained()
+    {
+        $input1 = [100, 1, 10, 1000];
+        $input2 = [1, 3, 2, 4];
+        $this->assertEquals(3, Arrgh::chain($input1)->multisort($input2)->pop()->shift());
     }
 }

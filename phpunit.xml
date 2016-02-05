@@ -20,8 +20,11 @@
         <log type="coverage-clover" target="build/logs/clover.xml"/>
     </logging>
     <filter>
-      <whitelist addUncoveredFilesFromWhitelist="true">
+      <whitelist addUncoveredFilesFromWhitelist="true" processUncoveredFilesFromWhitelist="true">
         <directory suffix=".php">src</directory>
+        <exclude>
+            <file>src/prebuild.arr_functions.php</file>
+        </exclude>
       </whitelist>
     </filter>
 </phpunit>

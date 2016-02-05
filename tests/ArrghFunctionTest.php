@@ -7,19 +7,11 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        $this->string_compare_function = function ($a, $b) { 
-            $result = $a - $b;
-            if ($result === 0) {
-                return Arrgh::getPhpSortDirection();
-            }
-            return $result;
+        $this->string_compare_function = function ($a, $b) {
+            return strcasecmp($a, $b);
         };
         $this->number_compare_function = function ($a, $b) {
-            $result = strcasecmp($a, $b);
-            if ($result === 0) {
-                return Arrgh::getPhpSortDirection();
-            }
-            return $result;
+            return $a - $b;
         };
     }
 
@@ -220,14 +212,14 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     {
         $input1 = [ "a" => 2, "b" => 4, "c" => 8 ];
         $input2 = [ "b" => 2, "c" => 4, "d" => 8 ];
-        $this->assertEquals(["a" => 2, "b" => 4, "c" => 8], arrgh_diff_uassoc($input1, $input2, $this->number_compare_function));
+        $this->assertEquals(["a" => 2, "b" => 4, "c" => 8], arrgh_diff_uassoc($input1, $input2, $this->string_compare_function));
     }
 
     public function testDiffUkey()
     {
         $input1 = [ "a" => 2, "b" => 4, "c" => 8 ];
         $input2 = [ "b" => 2, "c" => 4, "d" => 8 ];
-        $compare_function = function ($a, $b) { return strcasecmp($a, $b); };
+        $compare_function = $this->string_compare_function;//function ($a, $b) { return strcasecmp($a, $b); };
         $this->assertEquals(["a" => 2], arrgh_diff_ukey($input1, $input2, $compare_function));
     }
 
@@ -276,10 +268,21 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(["currency" => "DKK"], arrgh_intersect_key($input1, $input2));
     }
 
-    /*
-    arrgh_intersect_uassoc
-    arrgh_intersect_ukey
-    */
+    public function testIntersectUassoc()
+    {
+        $input1 = [ "currency" => "DKK", "live" => true];
+        $input2 = [ "currency" => "DKK" ];
+        $input3 = [ "country" => "DKK" ];
+        $this->assertEquals(["currency" => "DKK"], arrgh_intersect_uassoc($input1, $input2, $this->string_compare_function));
+        $this->assertEquals([], arrgh_intersect_uassoc($input1, $input3, $this->string_compare_function));
+    }
+
+    public function testIntersectUkey()
+    {
+        $input1 = [ "currency" => "DKK", "live" => true];
+        $input2 = [ "currency" => "USD" ];
+        $this->assertEquals(["currency" => "DKK"], arrgh_intersect_ukey($input1, $input2, $this->string_compare_function));
+    }
 
     public function testKeys()
     {
@@ -294,9 +297,20 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([1, 2, 3, 4, 5, 6], arrgh_merge($input1, $input2));
     }
 
-    /*
-    arrgh_merge_recursive
-    */
+    public function testMergeRecursive()
+    {
+        $default_settings = [ "currency" => "USD", "live" => false, "modules" => [
+            "abc" => "off",
+            "def" => "off",
+        ] ];
+        $settings = [ "currency" => "DKK", "modules" => [
+            "def" => "on"
+        ] ];
+        $this->assertEquals([ "currency" => ["USD", "DKK"], "live" => false, "modules" => [
+            "abc" => "off",
+            "def" => ["off", "on"],
+        ] ], arrgh_merge_recursive($default_settings, $settings));
+    }
 
     public function testPad()
     {
@@ -331,9 +345,21 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([ "currency" => "DKK", "live" => false ], arrgh_replace($default_settings, $settings));
     }
 
-    /*
-    arrgh_replace_recursive
-    */
+    // array_replace_recursive
+    public function testReplaceRecursive()
+    {
+        $default_settings = [ "currency" => "USD", "live" => false, "modules" => [
+            "abc" => "off",
+            "def" => "off",
+        ] ];
+        $settings = [ "currency" => "DKK", "modules" => [
+            "def" => "on"
+        ] ];
+        $this->assertEquals([ "currency" => "DKK", "live" => false, "modules" => [
+            "abc" => "off",
+            "def" => "on",
+        ] ], arrgh_replace_recursive($default_settings, $settings));
+    }
 
     public function testReverse()
     {
@@ -353,14 +379,51 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(6, arrgh_sum($input));
     }
 
-    /*
-    arrgh_udiff
-    arrgh_udiff_assoc
-    arrgh_udiff_uassoc
-    arrgh_uintersect
-    arrgh_uintersect_assoc
-    arrgh_uintersect_uassoc
-    */
+    public function testUdiff()
+    {
+        $input1 = [ "a", "b", "c" ];
+        $input2 = [ "b", "c", "d" ];
+        $this->assertEquals(["a"], arrgh_udiff($input1, $input2, $this->string_compare_function));
+    }
+
+    public function testUdiffAssoc()
+    {
+        $input1 = [ "a" => 2, "b" => 4, "c" => 8 ];
+        $input2 = [ "a" => 1, "b" => 4, "c" => 8 ];
+        $this->assertEquals(["a" => 2], arrgh_udiff_assoc($input1, $input2, $this->number_compare_function));
+    }
+
+    public function testUdiffUassoc()
+    {
+        $input1 = [ "a" => 2, "b" => 4, "c" => 8 ];
+        $input2 = [ "a" => 1, "b" => 4, "c" => 8 ];
+        $this->assertEquals(["a" => 2], arrgh_udiff_uassoc($input1, $input2, $this->number_compare_function, $this->string_compare_function));
+    }
+
+    public function testUintersect()
+    {
+        $input1 = [ 1, 2, 3 ];
+        $input2 = [ 3, 4, 5 ];
+        $this->assertEquals([2 => 3], arrgh_uintersect($input1, $input2, $this->number_compare_function));
+    }
+
+    public function testUintersectAssoc()
+    {
+        $input1 = [ "currency" => "DKK", "live" => true];
+        $input2 = [ "currency" => "DKK" ];
+        $input3 = [ "country" => "DKK" ];
+        $this->assertEquals(["currency" => "DKK"], arrgh_uintersect_assoc($input1, $input2, $this->string_compare_function));
+        $this->assertEquals([], arrgh_uintersect_assoc($input1, $input3, $this->string_compare_function));
+    }
+
+    public function testUintersectUassoc()
+    {
+        $input1 = [ "currency" => "DKK", "live" => true];
+        $input2 = [ "currency" => "DKK" ];
+        $input3 = [ "country" => "DKK" ];
+        $this->assertEquals(["currency" => "DKK"], arrgh_uintersect_uassoc($input1, $input2, $this->string_compare_function, $this->string_compare_function));
+        $this->assertEquals([], arrgh_uintersect_uassoc($input1, $input3, $this->string_compare_function, $this->string_compare_function));
+    }
 
     public function testUnique()
     {
@@ -417,9 +480,14 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(arrgh_key_exists($input, "a"));
     }
 
-    /*
-    arrgh_search
-    */
+    // array_search
+    public function testSearch()
+    {
+        $input = [ 0 => "blue", 1 => "red", 2 => "green", 3 => "red" ];
+        $input2 = [ "name" => "Michael", "nickname" => "Pacmanche" ];
+        $this->assertEquals(2, arrgh_search($input, "green"));
+        $this->assertEquals("nickname", arrgh_search($input2, "Pacmanche"));
+    }
 
     public function testImplode()
     {
@@ -441,9 +509,17 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 
     }
 
-    /*
-    arrgh_multisort
-    */
+    // array_multisort
+    public function testMultisort()
+    {
+        $input1 = [100, 1, 10, 1000];
+        $input2 = [1, 3, 2, 4];
+        $input3 = [1, 9, 4, 12];
+        $this->assertEquals([[1, 10, 100, 1000], [3, 2, 1, 4]], arrgh_multisort($input1, $input2));
+        $this->assertEquals([1, 10, 100, 1000], arrgh_multisort($input1));
+        $multidimensional = [$input1, $input3];
+        $this->assertEquals([[1, 10, 100, 1000], [9, 4, 1, 12]], arrgh_multisort($multidimensional[0], $multidimensional[1]));
+    }
 
     public function testPush()
     {
@@ -469,16 +545,127 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, $sum);
     }
 
-    /*
-    arrgh_walk_recursive
-    arrgh_arsort
-    arrgh_asort
-    arrgh_krsort
-    arrgh_ksort
-    arrgh_natcasesort
-    arrgh_natsort
-    arrgh_rsort
-    */
+    // array_walk_recursive
+    public function testWalkRecursive()
+    {
+        $input = [ "person" => [ "name" => "Mona", "age" => 45 ], "statement" => "for sure!"];
+        $output_string = "";
+        $output = arrgh_walk_recursive($input, function ($item, $key) use (&$output_string) {
+            if ($key === "name") {
+                $item = $item . " is";
+            }
+            $output_string .= $item . ($key === "statement" ? "": " ");
+        });
+        $this->assertEquals("Mona is 45 for sure!", $output_string);
+        $this->assertEquals($input, $output);
+    }
+
+    // arsort (doesn't mess up order in PHP5)
+    public function testArsort()
+    {
+        $input = [
+            "Jakob II" => 42,
+            "Jakob I"  => 42,
+            "Ginger"   => 18,
+        ];
+
+        $output = arrgh_arsort($input);
+        $this->assertEquals(["Jakob II", "Jakob I", "Ginger"], array_keys($output));
+    }
+
+    // asort
+    public function testAsort()
+    {
+        $input = [
+            "Jakob I"  => 42,
+            "Jakob II" => 42,
+            "Ginger"   => 18,
+        ];
+
+        $output = arrgh_asort($input);
+        $this->assertEquals([ "Ginger", "Jakob I", "Jakob II" ], array_keys($output));
+    }
+
+    // krsort
+    public function testKrsort()
+    {
+        $input = [
+            "img12.png" => 1,
+            "Img10.png" => 1,
+            "img2.png" => 1,
+            "img1.png" => 1,
+        ];
+        $this->assertEquals([
+            "img2.png" => 1,
+            "img12.png" => 1,
+            "Img10.png" => 1,
+            "img1.png" => 1,
+        ], arrgh_krsort($input));
+
+        $this->assertEquals([
+            "img12.png" => 1,
+            "Img10.png" => 1,
+            "img2.png" => 1,
+            "img1.png" => 1,
+        ], arrgh_krsort($input, SORT_NATURAL));
+    }
+
+    // ksort
+    public function testKsort()
+    {
+        $input = [
+            "img12.png" => 1,
+            "Img10.png" => 1,
+            "img2.png" => 1,
+            "img1.png" => 1,
+        ];
+        $this->assertEquals([
+            "img1.png" => 1,
+            "Img10.png" => 1,
+            "img12.png" => 1,
+            "img2.png" => 1,
+        ], arrgh_ksort($input));
+
+        $this->assertEquals([
+            "img1.png" => 1,
+            "img2.png" => 1,
+            "Img10.png" => 1,
+            "img12.png" => 1,
+        ], arrgh_ksort($input, SORT_NATURAL));
+    }
+
+    // natcasesort
+    public function testNatcasesort()
+    {
+        $input = ["img12.png", "Img10.png", "img2.png", "img1.png"];
+        $this->assertEquals([
+            "img1.png",
+            "img2.png",
+            "Img10.png",
+            "img12.png",
+        ], array_values(arrgh_natcasesort($input)));
+    }
+
+    // natsort
+    public function testNatsort()
+    {
+        $input = ["img12.png", "Img10.png", "img2.png", "img1.png"];
+        $this->assertEquals([
+            "Img10.png",
+            "img1.png",
+            "img2.png",
+            "img12.png",
+        ], array_values(arrgh_natsort($input)));
+    }
+
+    // rsort
+    public function testRsort()
+    {
+        $input = array_merge(range("a", "m"), array_reverse(range("n", "z")));
+        $expected = array_reverse(range("a", "z"));
+        $this->assertEquals("a", $input[0]);
+        $this->assertEquals($expected, arrgh_rsort($input));
+    }
 
     public function testShuffle()
     {
@@ -499,11 +686,55 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($input, arrgh_sort($input));
     }
 
-    /*
-    arrgh_uasort
-    arrgh_uksort
-    arrgh_usort
-    */
+    // uasort
+    public function testUasort()
+    {
+        $input = [
+            "Jakob I" => 42,
+            "Jakob II" => 42,
+            "Ginger" => 18,
+        ];
+
+        $output = arrgh_uasort($input, $this->number_compare_function);
+        $this->assertEquals([ "Ginger", "Jakob I", "Jakob II" ], array_keys($output));
+    }
+
+    // uksort
+    public function testUksort()
+    {
+        $input = [
+            "Jakob I" => 42,
+            "Jakob II" => 18,
+            "Ginger" => 42,
+        ];
+
+        $output = arrgh_uksort($input, function ($a, $b) { return strcasecmp(trim($a, " I"), trim($b, " I")); });
+        $this->assertEquals([ "Ginger", "Jakob I", "Jakob II" ], array_keys($output));
+    }
+
+    public function testUsort()
+    {
+        $input = [
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ];
+        $expected_result = [
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Ginger", "age" => 42 ],
+            [ "name" => "Jakob", "age" => 42 ],
+        ];
+
+        $output = arrgh_usort($input, function ($a, $b) {
+            return $a["age"] - $b["age"];
+        });
+
+        $this->assertEquals([
+            [ "name" => "Topher", "age" => 18 ],
+            [ "name" => "Jakob", "age" => 42 ],
+            [ "name" => "Ginger", "age" => 42 ],
+        ], $output);
+    }
 
     public function testPop()
     {

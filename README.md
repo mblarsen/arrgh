@@ -334,16 +334,38 @@ PHP5 and PHP7 treats the items in an array with a compare result differently. Yo
 _Arrgh_ elevates this problem by providing the correct integer depending on which version is running. So when running your custom compare functions you can do like this:
 
     usort($input, function ($a, $b) {
-        return Arrgh::getPhpSortDirection($a["age"] - $b["age"]);
+        return Arrgh::getSortDirection($a["age"] - $b["age"]);
+    });
+
+or using _Arrgh_:
+
+    arrgh_usort($input, function ($a, $b) {
+        return Arrgh::getSortDirection($a["age"] - $b["age"]);
     });
 
 See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 
+**New as of v0.6.0** for all _Arrgh_ functions you don't have to take this problem into account, so you can simply do like this:
+
+    arrgh_usort($input, function ($a, $b) {
+        return $a["age"] - $b["age"];
+    });
+
+Internally the callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
+
 ## Change log
+
+**v0.6.0**
+
+* New: Certain sort and compare functions that takes a callable will now automatically have their callable wrapped in a PHP version aware callable.
+* New: Terminator methods will now return an _Arrgh_ object when the result is an array.
+* New: `asort()` behaves like `uasort()` so it is now now mapped to `uassort()` with a wrapped callable
+* New: `shift()` and `unshift()` was missing.
+* Changed: `getPhpSortDirection()` is now `getSortDirection()`
 
 **v0.5.8**
 
-* Changed: `getPhpSortDirection()` takes a computed direction.
+* Changed: `getSortDirection()` takes a computed direction.
 
 **v0.5.7**
 
