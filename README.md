@@ -360,6 +360,12 @@ Internally the callable is wrapped in PHP version aware callable that inspects t
 
 ## Change log
 
+**v0.7.0**
+
+* Changed: Rewrote `isCollection()` and `depth()`. `[]` is now a collection. Depth is now zero based.
+* Changed: Native `array_column()` will filter away null values—i.e when column is missing. This is equivalent to `array_filter(array_map(callable, array))`. This means that you cannot use
+  `array_column()` for `array_multisort()` since array size no longer matches. This behaviour has been changed in _Arrgh_, so to achieve the same result as the native column-function you'll ned to filter it afterwards.
+
 **v0.6.1**
 
 * New: Added `head()`, `tail()`, `first()`, `last()`, `partition()`.

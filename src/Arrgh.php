@@ -208,6 +208,7 @@ class Arrgh implements ArrayAccess, Iterator
 
         $matching_handler = null;
         $matching_function = null;
+        $post_handler = null;
         foreach ($all_functions as $handler => $functions) {
             foreach ($all_function_names as $function) {
                 if (in_array($function, $functions)) {
@@ -222,9 +223,30 @@ class Arrgh implements ArrayAccess, Iterator
             throw new InvalidArgumentException("Method {$method} doesn't exist");
         }
 
-        if ($matching_function === "asort") { // "arsort" doen't mess up in PHP5
+        // asort in PHP5 reverses equals ("arsort" doen't mess up for some reason)
+        if ($matching_function === "asort") {
             $matching_function = "uasort";
             array_push($args, function ($a, $b) { return strcasecmp($a, $b); });
+        }
+        
+        // Native array_column filters away null values. That means you cannot use array_column
+        // for multisort since array size no longer matches. This version of array_column returns
+        // null if the column is missing
+        if ($matching_function === "array_column") {
+            $matching_function = "array_map";
+            $matching_handler = "_rotateRight";
+            $column_key = $column_id = $column_array = null;
+            $column_array = $args[0];
+            $column_key = $args[1];
+            if (count($args) === 3) {
+                $column_id = $args[2];
+                $column_ids_new = array_map(function ($item) use ($column_id) { return isset($item[$column_id]) ? $item[$column_id] : null; }, $column_array);
+                $post_handler = function ($result) use ($column_ids_new) {
+                    return array_combine($column_ids_new, $result);
+                };
+            }
+            $args = [$column_array];
+            array_push($args, function ($item) use ($column_key) { return isset($item[$column_key]) ? $item[$column_key] : null; });
         }
 
         // If chain unshift array onto argument stack
@@ -247,6 +269,10 @@ class Arrgh implements ArrayAccess, Iterator
 
         // Invoke handler
         $result = self::$matching_handler($matching_function, $args, $object);
+        // If a post handler is registered let it modify the result
+        if ($post_handler) {
+            $result = $post_handler($result);
+        }
 
         if ($object) {
             if (in_array($matching_function, self::$terminators)) {
@@ -347,19 +373,16 @@ class Arrgh implements ArrayAccess, Iterator
      */
     static private function arrgh_sort_by($array, $key, $direction = "ASC")
     {
-        if (count($array) < 2) {
-            return $array;
-        }
-
         $direction_int = strtoupper($direction) === "ASC" ? 1 : -1;
-        $usort_function = null;
+
         if ($key instanceof Closure) {
             usort($array, self::wrapCallable($key));
             if ($direction_int === -1) {
-                $array = array_reverse($array);
+                return array_reverse($array);
             }
             return $array;
         }
+        
         $column = array_map(function ($item) use ($key) { return isset($item[$key]) ? $item[$key] : null; }, $array);
         array_multisort($column, ($direction_int === 1 ? SORT_ASC : SORT_DESC), $array);
         return $array;
@@ -532,12 +555,12 @@ class Arrgh implements ArrayAccess, Iterator
                 if ($collapse                  // if enabled
                     && !is_numeric($path[0])   // if next path segment is not an index
                     && $path[0] !== "!$"       // if not the result of a custom function
-                    && $node_depth > 1         // if array of arrays
+                    && $node_depth > 0         // if array of arrays
                 ) {
                     $next_node = Arrgh::arrgh_collapse($next_node);
                 }
 
-                if (is_numeric($path[0]) && $node_depth <= 1) {
+                if (is_numeric($path[0]) && $node_depth < 1) {
                     $result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
                 } else {
                     // Collect data from sub-tree
@@ -564,8 +587,8 @@ class Arrgh implements ArrayAccess, Iterator
                 $result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
             }
             if (is_array($result)) {
-                // Collapse collections greater than 2
-                if (Arrgh::arrgh_depth($result) > 2) {
+                // Collapse collections greater than 1
+                if (Arrgh::arrgh_depth($result) > 1) {
                     $result = Arrgh::arrgh_collapse($result);
                 }
                 return array_filter($result);
@@ -577,35 +600,48 @@ class Arrgh implements ArrayAccess, Iterator
 
     static private function arrgh_is_collection($mixed)
     {
-        if (!is_array($mixed)) return false;
-        $keys = array_keys($mixed);
-        if (isset($keys[0]) && is_numeric($keys[0])) return true;
-        return false;
+        return is_array($mixed) && array_values($mixed) === $mixed;
     }
 
+    /**
+     * Return the depth of a collection hiearchy. Zero based.
+     *
+     * @param array A collection
+     * @return int `null` if $array is not a collection.
+     */
     static private function arrgh_depth($array)
     {
+        if (empty($array) && is_array($array)) return 0;
+        if (!Arrgh::arrgh_is_collection($array)) return null;
+
         $depth = 0;
-        $child = $array; ;
+        $child = array_shift($array);
         while(Arrgh::arrgh_is_collection($child)) {
             $depth += 1;
-            $child = $child[0];
+            $child = array_shift($child);
         }
         return $depth;
     }
 
+    /**
+     * Partion the input based on the result of the callback function.
+     *
+     * @param array    A collection
+     * @param callable A callable returning true or false depending on which way to partion the element—left or right.
+     * @return [left, right] An array with two arrays—left and right.
+     */
     static private function arrgh_partition($array, $callable)
     {
-        $yay = [];
-        $nay = [];
-        array_walk($array, function ($item, $key) use (&$yay, &$nay, $callable) {
+        $left = [];
+        $right = [];
+        array_walk($array, function ($item, $key) use (&$left, &$right, $callable) {
             if ($callable($item, $key)) {
-                $yay[] = $item;
+                $left[] = $item;
             } else {
-                $nay[] = $item;
+                $right[] = $item;
             }
         });
-        return [ $yay, $nay ];
+        return [ $left, $right ];
     }
 
     static private function arrgh_even($array)
@@ -641,6 +677,7 @@ class Arrgh implements ArrayAccess, Iterator
         return Arrgh::chain($array)->keep()->shift()->toArray();
     }
 
+    // _arrgh
     static private $arrgh_functions = [
         "collapse",
         "contains",
@@ -659,6 +696,8 @@ class Arrgh implements ArrayAccess, Iterator
         'partition',
         'tail',
     ];
+    
+    // _call
     static private $simple_functions = [
         "array_change_key_case",
         "array_chunk",
@@ -705,6 +744,8 @@ class Arrgh implements ArrayAccess, Iterator
         "range",
         "sizeof",
     ];
+    
+    // _copy
     static private $mutable_functions = [
         "array_push",
         "array_splice",
@@ -724,18 +765,25 @@ class Arrgh implements ArrayAccess, Iterator
         "uksort",
         "usort",
     ];
+    
+    // _copyMultiple
     static private $mutable_functions_multiple = [
         "array_multisort",
     ];
-
+    
+    // _copyValue
     static private $mutable_value_functions = [
         "array_pop",
         "array_shift",
         "end",
     ];
+    
+    // _rotateRight
     static private $reverse_functions = [
         "array_map",
     ];
+    
+    // _swapTwoFirst
     static private $swapped_functions = [
         "array_key_exists",
         "array_search",
@@ -743,11 +791,13 @@ class Arrgh implements ArrayAccess, Iterator
         "in_array",
         "join",
     ];
+    
     static private $starters = [
         "array_fill",
         "array_fill_keys",
         "range",
     ];
+    
     static private $terminators = [
         "array_pop",
         "array_shift",
@@ -761,15 +811,12 @@ class Arrgh implements ArrayAccess, Iterator
         "min",
         "sizeof",
     ];
+    
     static private $reverse_result_functions = [
         "uasort",
         "uksort",
         "usort",
         "asort",
-        // "array_diff_uassoc",
-        // "array_diff_ukey",
-        // "array_intersect_uassoc",
-        // "array_intersect_ukey",
     ];
 }
 

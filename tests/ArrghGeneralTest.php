@@ -231,40 +231,19 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("Jakob", Arrgh::get($array[0], "name"));
         $this->assertEquals("Ginger", Arrgh::get($array, "2.name"));
         $this->assertEquals([ "Jakob", "Topher", "Ginger" ], Arrgh::get($array, "name"));
-        $this->assertEquals(
-            [ [ "Mona", "Lisa" ], [ "Joe" ] ],
-            Arrgh::get($array, "children.name")
-        );
 
-        $this->assertEquals(
-            [ "Mona", "Lisa", "Joe" ],
-            Arrgh::get($array, "children.name", $collapse = true)
-        );
+        $this->assertEquals([ [ "Mona", "Lisa" ], [ "Joe" ] ], Arrgh::get($array, "children.name"));
+        $this->assertEquals([ "Mona", "Lisa", "Joe" ], Arrgh::get($array, "children.name", $collapse = true));
 
-        $this->assertEquals(
-            [ "Mona", "Joe" ],
-            Arrgh::get($array, "children.0.name", $collapse = true)
-        );
+        $this->assertEquals( [ "Mona", "Joe" ], Arrgh::get($array, "children.0.name", $collapse = true) );
+        $this->assertEquals( [ ["Mona"], ["Joe"] ], Arrgh::get($array, "children.0.name") );
 
-        $this->assertEquals(
-            [ ["Mona"], ["Joe"] ],
-            Arrgh::get($array, "children.0.name")
-        );
+        $this->assertEquals( [ "Lisa" ], Arrgh::get($array, "children.1.name", $collapse = true) );
 
-        $this->assertEquals(
-            [ "Lisa" ],
-            Arrgh::get($array, "children.1.name", $collapse = true)
-        );
+        $this->assertEquals( [ ], Arrgh::get($array, "children.2.name", $collapse = true) );
 
-        $this->assertEquals(
-            [ ],
-            Arrgh::get($array, "children.2.name", $collapse = true)
-        );
-
-        $this->assertEquals(
-            [ "Lisa", "Joe" ],
-            Arrgh::get($array, "children.-1.name", $collapse = true)
-        );
+        $this->assertEquals( [ "Lisa", "Joe" ], Arrgh::get($array, "children.-1.name", $collapse = true) );
+        $this->assertEquals( [ ["Lisa"], ["Joe"] ], Arrgh::get($array, "children.-1.name") );
 
         $this->assertEquals( [null, null, null], Arrgh::get($array, "dad"));
         $this->assertEquals( [ ], Arrgh::get($array, "dad", $collapse = true));
@@ -434,5 +413,22 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
         $input1 = [100, 1, 10, 1000];
         $input2 = [1, 3, 2, 4];
         $this->assertEquals(3, Arrgh::chain($input1)->multisort($input2)->pop()->shift());
+    }
+    
+    public function testMultisortWithColumn()
+    {
+        $input = [
+            [ "id" => "42", "name" => "Jakob", "age" => 37 ],
+            [ "id" => "43", "name" => "Topher", "age" => 18 ],
+            [ "id" => "43", "name" => "Allan" ],
+        ];
+        
+        $this->assertEquals([ 37, 18 ], array_column($input, "age"));
+        $this->assertEquals([ 37, 18, null ], arrgh_column($input, "age"));
+        $this->assertEquals([
+            [ "id" => "43", "name" => "Allan" ],
+            [ "id" => "43", "name" => "Topher", "age" => 18 ],
+            [ "id" => "42", "name" => "Jakob", "age" => 37 ],
+        ], arrgh_multisort(arrgh_column($input, "age"), $input)[1]);
     }
 }

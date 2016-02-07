@@ -116,7 +116,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $input4 = [ [ "name" => "Jakob", "age" => 37 ] ];
 
         $tests = [
-            [$input, false],
+            [$input, true],
             [$input2, true],
             [$input3, false],
             [$input4, true],
@@ -124,29 +124,35 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
 
         foreach ($tests as $test_pair) {
             list($test, $expected) = $test_pair;
-            $this->assertEquals($expected, arrgh_is_collection($test));
+            $this->assertEquals($expected, arrgh_is_collection($test), print_r($test, true));
         }
     }
 
     function testDepth()
     {
         $input = [];
-        $input2 = [ 0, 1, 2, 3 ];
-        $input3 = [ "name" => "Jakob", "age" => 37 ];
-        $input4 = [ [ "name" => "Jakob", "age" => 37 ] ];
+        $input2 = [ 2, 1, 2, 3 ];
+        $input3 = [ "name" => "Jakob", "age" => 35 ];
+        $input4 = [ [ "name" => "Jakob", "age" => 36 ] ];
         $input5 = [ [ [ "name" => "Jakob", "age" => 37 ] ] ];
+        $input6 = [
+            [ 'Mona', 'Lisa' ],
+            [ 'Joe' ],
+            NULL
+        ];
 
         $tests = [
             [$input, 0],
-            [$input2, 1],
-            [$input3, 0],
-            [$input4, 1],
-            [$input5, 2],
+            [$input2, 0],
+            [$input3, null],
+            [$input4, 0],
+            [$input5, 1],
+            [$input6, 1],
         ];
 
         foreach ($tests as $test_pair) {
             list($test, $expected) = $test_pair;
-            $this->assertEquals($expected, arrgh_depth($test));
+            $this->assertEquals($expected, arrgh_depth($test), print_r($test, true));
         }
     }
 
@@ -769,26 +775,26 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $input = [1, 2, 3, 4];
         $this->assertEquals([0, 1, 2, 3, 4], arrgh($input)->unshift(0)->toArray());
     }
-    
-    public function testHead() 
+
+    public function testHead()
     {
         $input = [1, 2, 3, 4];
         $this->assertEquals(1, arrgh_head($input));
     }
 
-    public function testTail() 
+    public function testTail()
     {
         $input = [1, 2, 3, 4];
         $this->assertEquals([2, 3, 4], arrgh_tail($input));
     }
 
-    public function testFirst() 
+    public function testFirst()
     {
         $input = [1, 2, 3, 4];
         $this->assertEquals(1, arrgh_first($input));
     }
 
-    public function testLast() 
+    public function testLast()
     {
         $input = [1, 2, 3, 4];
         $this->assertEquals(4, arrgh_last($input));
