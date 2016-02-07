@@ -761,11 +761,59 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
         $input = [1, 2, 3, 4];
         $this->assertEquals(1, arrgh($input)->shift());
     }
+
     public function testUnshift()
     {
         $input = [1, 2, 3, 4];
         $this->assertEquals([0, 1, 2, 3, 4], arrgh_unshift($input, 0));
         $input = [1, 2, 3, 4];
         $this->assertEquals([0, 1, 2, 3, 4], arrgh($input)->unshift(0)->toArray());
+    }
+    
+    public function testHead() 
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals(1, arrgh_head($input));
+    }
+
+    public function testTail() 
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([2, 3, 4], arrgh_tail($input));
+    }
+
+    public function testFirst() 
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals(1, arrgh_first($input));
+    }
+
+    public function testLast() 
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals(4, arrgh_last($input));
+    }
+
+    public function testPartition()
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([[2,4], [1,3]], arrgh_partition($input, function ($item, $key) { return $item % 2 === 0; }));
+        $result = arrgh($input)
+            ->partition(function ($item) { return $item % 4 === 0; })
+            ->first()
+            ->toArray();
+        $this->assertEquals([4], $result);
+    }
+
+    public function testEven()
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([1,3], arrgh_even($input));
+    }
+
+    public function testOdd()
+    {
+        $input = [1, 2, 3, 4];
+        $this->assertEquals([2,4], arrgh_odd($input));
     }
 }

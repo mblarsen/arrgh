@@ -4,7 +4,7 @@
     "description": "PHP arrays the rrright way",
     "keywords": ["array", "chain", "chaining", "functional", "shim"],
     "license": "MIT",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",

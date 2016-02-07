@@ -263,6 +263,11 @@ In addition to [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.arra
 * `get(array, path)`: A powerful getter of multidimensional arrays.
 * `isCollection(array)`: Tells if an array is a collection (as opposed ot an associative array)
 * `depth(array)`: Tells the depth of arrays of arrays (excluding associative arrays)
+* `head(array)`: Synonym for shift
+* `tail(array)`: Returns everything but the head. E.g. tail([1, 2, 3]) outputs [2, 3]
+* `first(array)`: Synonym for shift
+* `last(array)`: Synonym for pop
+* `partition(array, callable)`: Splits array into two arrays determined by callable function
 
 ## Works like array
 
@@ -354,6 +359,10 @@ See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 Internally the callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
 
 ## Change log
+
+**v0.6.1**
+
+* New: Added `head()`, `tail()`, `first()`, `last()`, `partition()`.
 
 **v0.6.0**
 

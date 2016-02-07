@@ -2,14 +2,6 @@
 function arrgh($array = []) {
     return new Arrgh($array);
 }
-function arrgh_map_ass()
-{
-    return Arrgh::map_ass(...func_get_args());
-}
-function arrgh_sort_by()
-{
-    return Arrgh::sort_by(...func_get_args());
-}
 function arrgh_collapse()
 {
     return Arrgh::collapse(...func_get_args());
@@ -22,21 +14,57 @@ function arrgh_except()
 {
     return Arrgh::except(...func_get_args());
 }
+function arrgh_map_ass()
+{
+    return Arrgh::map_ass(...func_get_args());
+}
 function arrgh_only()
 {
     return Arrgh::only(...func_get_args());
+}
+function arrgh_sort_by()
+{
+    return Arrgh::sort_by(...func_get_args());
+}
+function arrgh_depth()
+{
+    return Arrgh::depth(...func_get_args());
+}
+function arrgh_even()
+{
+    return Arrgh::even(...func_get_args());
+}
+function arrgh_first()
+{
+    return Arrgh::first(...func_get_args());
 }
 function arrgh_get()
 {
     return Arrgh::get(...func_get_args());
 }
+function arrgh_head()
+{
+    return Arrgh::head(...func_get_args());
+}
 function arrgh_is_collection()
 {
     return Arrgh::is_collection(...func_get_args());
 }
-function arrgh_depth()
+function arrgh_last()
 {
-    return Arrgh::depth(...func_get_args());
+    return Arrgh::last(...func_get_args());
+}
+function arrgh_odd()
+{
+    return Arrgh::odd(...func_get_args());
+}
+function arrgh_partition()
+{
+    return Arrgh::partition(...func_get_args());
+}
+function arrgh_tail()
+{
+    return Arrgh::tail(...func_get_args());
 }
 function arrgh_change_key_case()
 {

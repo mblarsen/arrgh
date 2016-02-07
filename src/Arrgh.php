@@ -9,7 +9,7 @@ class Arrgh implements ArrayAccess, Iterator
 {
     const PHP_SORT_DIRECTION_56 = 1;
     const PHP_SORT_DIRECTION_7 = -1;
-        
+
     private $array;
     private $array_position;
     private $original_array;
@@ -41,6 +41,12 @@ class Arrgh implements ArrayAccess, Iterator
     /* Returns an array */
     public function toArray()
     {
+        $array = array_map(function ($item) {
+            if ($item instanceof Arrgh) {
+                return $item->toArray();
+            }
+            return $item;
+        }, $this->array);
         return $this->array;
     }
 
@@ -164,7 +170,7 @@ class Arrgh implements ArrayAccess, Iterator
             "_copyValue"    => self::$mutable_value_functions,
         ];
     }
-    
+
     static public function getSortDirection($direction = null)
     {
         if (self::$php_version === null) {
@@ -215,7 +221,7 @@ class Arrgh implements ArrayAccess, Iterator
         if ($matching_function === null) {
             throw new InvalidArgumentException("Method {$method} doesn't exist");
         }
-        
+
         if ($matching_function === "asort") { // "arsort" doen't mess up in PHP5
             $matching_function = "uasort";
             array_push($args, function ($a, $b) { return strcasecmp($a, $b); });
@@ -228,7 +234,7 @@ class Arrgh implements ArrayAccess, Iterator
 
         // If some arrays are Arrghs map to array or if callable, wrap it in new callable with
         // info about sort direction.
-        $args = array_map(function ($arg) use ($matching_function) { 
+        $args = array_map(function ($arg) use ($matching_function) {
             if ($arg instanceof Arrgh) {
                 return $arg->array;
             } else if ($arg instanceof Closure) {
@@ -294,7 +300,7 @@ class Arrgh implements ArrayAccess, Iterator
         $result = $function($array, ...$args);
         return $array;
     }
-    
+
     /* If multiple arrays are passed as arguments mulitple will be returned. Otherwise _copy is used */
     static private function _copyMultiple($function, $args)
     {
@@ -346,38 +352,16 @@ class Arrgh implements ArrayAccess, Iterator
         }
 
         $direction_int = strtoupper($direction) === "ASC" ? 1 : -1;
-
         $usort_function = null;
         if ($key instanceof Closure) {
             usort($array, self::wrapCallable($key));
             if ($direction_int === -1) {
                 $array = array_reverse($array);
             }
-        } else {
-            $compare_function = "strcasecmp";
-            if (array_key_exists($key, $array[0]) && is_numeric($array[0][$key]) &&
-                array_key_exists($key, $array[1]) && is_numeric($array[1][$key])) {
-                $compare_function = null;
-            }
-
-            $usort_function = function ($a, $b) use ($compare_function, $key, $direction_int) {
-                $a_isset = isset($a[$key]);
-                $b_isset = isset($b[$key]);
-                if (!$a_isset || !$b_isset) {
-                    $result = 0;
-                    if ($a_isset xor $b_isset) {
-                        $result = $a_isset && !$b_isset ? 1 : -1;
-                    }
-                } else if ($compare_function === null) {
-                    $result = $a[$key] - $b[$key];
-                } else {
-                    $result = $compare_function($a[$key], $b[$key]);
-                }
-                $result *= $direction_int;
-                return $result;
-            };
-            usort($array, self::wrapCallable($usort_function));
+            return $array;
         }
+        $column = array_map(function ($item) use ($key) { return isset($item[$key]) ? $item[$key] : null; }, $array);
+        array_multisort($column, ($direction_int === 1 ? SORT_ASC : SORT_DESC), $array);
         return $array;
     }
 
@@ -466,7 +450,7 @@ class Arrgh implements ArrayAccess, Iterator
             $path_string = array_shift($path);
         }
         $path_segments = explode(".", $path_string);
-        $result = self::_arrgh_get_traverse($array, $path_segments, $collapse, /* functions */ $path );
+        $result = self::_arrgh_get_traverse($array, $path_segments, $collapse, /* functions */ $path);
         return $result;
     }
 
@@ -497,7 +481,6 @@ class Arrgh implements ArrayAccess, Iterator
                 if ($plug_index < 0) {
                     $plug_index = $count === 1 ? 0 : $count + ($plug_index % $count);
                 }
-
                 // Plug data
                 if (isset($data[$plug_index])) {
                     $next_node = $data[$plug_index];
@@ -611,16 +594,70 @@ class Arrgh implements ArrayAccess, Iterator
         return $depth;
     }
 
+    static private function arrgh_partition($array, $callable)
+    {
+        $yay = [];
+        $nay = [];
+        array_walk($array, function ($item, $key) use (&$yay, &$nay, $callable) {
+            if ($callable($item, $key)) {
+                $yay[] = $item;
+            } else {
+                $nay[] = $item;
+            }
+        });
+        return [ $yay, $nay ];
+    }
+
+    static private function arrgh_even($array)
+    {
+        return Arrgh::arrgh_partition($array, function ($item, $key) { return $key % 2 === 0; })[0];
+    }
+
+    static private function arrgh_odd($array)
+    {
+        return Arrgh::arrgh_partition($array, function ($item, $key) { return $key % 2 === 1; })[0];
+    }
+
+    /* Synonym of shift */
+    static private function arrgh_head($array)
+    {
+        return Arrgh::shift($array);
+    }
+
+    /* Synonym of shift */
+    static private function arrgh_first($array)
+    {
+        return Arrgh::shift($array);
+    }
+
+    /* Synonym of pop */
+    static private function arrgh_last($array)
+    {
+        return Arrgh::pop($array);
+    }
+
+    static private function arrgh_tail($array)
+    {
+        return Arrgh::chain($array)->keep()->shift()->toArray();
+    }
+
     static private $arrgh_functions = [
-        "map_ass",
-        "sort_by",
         "collapse",
         "contains",
         "except",
+        "map_ass",
         "only",
-        'get',
-        'is_collection',
+        "sort_by",
         'depth',
+        'even',
+        'first',
+        'get',
+        'head',
+        'is_collection',
+        'last',
+        'odd',
+        'partition',
+        'tail',
     ];
     static private $simple_functions = [
         "array_change_key_case",
@@ -690,7 +727,7 @@ class Arrgh implements ArrayAccess, Iterator
     static private $mutable_functions_multiple = [
         "array_multisort",
     ];
-    
+
     static private $mutable_value_functions = [
         "array_pop",
         "array_shift",
@@ -716,7 +753,10 @@ class Arrgh implements ArrayAccess, Iterator
         "array_shift",
         "array_sum",
         "count",
+        "first",
+        "head",
         "join",
+        "last",
         "max",
         "min",
         "sizeof",
