@@ -5,34 +5,19 @@
 
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
 
-* Arrays as first parameter. The existing API for arrays can be very confusing. For some functions the input array is the first parameter on others the last. Moreover some functions returns a result others don't (this mostly has to do with passing of input as reference.)
-* Not a re-write but a remapping of parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
-* Comes in three flavors: functions (`arrgh_map`), static (`Arrgh::map`), objects/chainable (`$array->map()`).
-* Adds missing functions like: `map_ass` (associative mapping function), `collapse`, `get` (a dot-path getter), `sortBy` and more. (see [Additional functions](#additional-functions))
-* Provides aid for working with sort/compare on both PHP5 and PHP7 which treats equals differently.
-* Lets you use native function names or shorter ones in snake or camelCase. E.g. `$array->array_map()`, `$array->arrayMap()`, `$array->map()`.
+* Arrays as first parameter and they are immutable. The existing API for arrays can be confusing. For some functions the input array is the first parameter on others the last. Moreover some functions returns a new array others mutate the input array (passing it by reference).
+* _Arrgh_ is not a re-write but a remapping of parameters to native functions. E.g. `array_map($callable, $array)` becomes `arrgh_map($array, $callable)`.
+* Comes in three flavors: 
+  1. function `arrgh_map($people, $callable)`
+  2. static `Arrgh::map($people, $callable)`
+  3. object/chainable `$array->map($callable)`
+* Adds missing functions like: `tail`, `collapse`, `sortBy`, `mapAss` (associative mapping function), `get` (a dot-path getter) and many more. (see [Additional functions](#additional-functions))
+* Sorting and comparing works both with PHP5 and PHP7, even for your custom sort and compare functions.
+* You can use the the names you know or shorter ones using snake_case or camelCase. E.g. `$array->array_map()`, `$array->arrayMap()`, `$array->map()`.
 
-# How to use
+## Installing
 
     composer require mblarsen/arrgh
-
-If you want to make use of function-style you have to define the following before `vendor/autoload` require.
-
-    define("ARRGH", true);
-
-Now you can use functions like this anywhere in your code:
-
-    arrgh_reverse([1, 2, 3]);
-
-You can change the function prefix using:
-
-    define("ARRGH_PREFIX", "arr");
-
-Now `arrgh_reverse` becomes:
-
-    arr_reverse([1, 2, 3]);
-
-_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arrgh and arr prefixes, so for these `eval()` is not needed._
 
 ## Examples
 
@@ -115,7 +100,7 @@ All functions that takes one or more arrays now takes them as their first argume
     join($glue, $array)                    => ($array, $glue);
     array_map($callable, $array[, arrayN]) => ($array[, arrayN], $callable)
 
-## All functions returns
+## All functions are immutable
 
 Most of the functions that makes alterations to arrays like sorting all pass the input array by reference like:
 
@@ -165,33 +150,46 @@ The constructor function `aargh()` lets you start a chain:
 
     arrgh($defaults)->replace($params);
 
-_Note: See [How to use](#how-to-use) on how to enable function-style._
+#### Using function style
+
+If you want to make use of function-style you have to define the following before autoloading.
+
+    define("ARRGH", true);
+    require __DIR__ . "/vendor/autoload.php";
+
+You can change the function prefix using:
+
+    define("ARRGH_PREFIX", "arr");
+
+Now `arrgh_reverse` becomes:
+
+    arr_reverse([1, 2, 3]);
+
+_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with `arrgh` and `arr` prefixes, so for these `eval()` is not needed._
 
 ### Static style
 
 You can use the static functions on `Arrgh`:
 
     Arrgh::array_flip($music);
-    // or
     Arrgh::flip($music);
 
 All static methods takes an array as the first input and returns an array. Even sort:
 
     return Arrgh::sort($big_numbers);
 
-You can break out of static-style and start a chain like this:
+You can break out of static-style and start a [chain](#chain-style) like this:
 
-    // Return the sum of `$big_numbers`
     Arrgh::arrgh($big_numbers)
         ->sort()
-        ->reduce(function ($k, $v) { return $k += $v });
+        ->reduce(function ($k, $v) { return $k += ln($v); });
 
 A synonym of `arrgh` is `chain`. A shorthand for both is to prefix any method with _underscore_:
 
     Arrgh::_sort($big_numbers)
         ->reduce(function ($k, $v) { return $k += $v });
 
-_sort_ now returns chainable object.
+`_sort()` returns chainable _Arrgh_ object.
 
 ### Chain style
 
@@ -298,6 +296,23 @@ Array values are returned as `Arrgh` objects:
 
 _Note: PHP's native functions can only take arrays as parameters, so that is a limitation. But you are not using them anyway are you?_
 
+If you want to make use of function-style you have to define the following before `vendor/autoload` require.
+
+    define("ARRGH", true);
+
+Now you can use functions like this anywhere in your code:
+
+    arrgh_reverse([1, 2, 3]);
+
+You can change the function prefix using:
+
+    define("ARRGH_PREFIX", "arr");
+
+Now `arrgh_reverse` becomes:
+
+    arr_reverse([1, 2, 3]);
+
+_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arrgh and arr prefixes, so for these `eval()` is not needed._
 ## PHP5 vs PHP7
 
 At the time of writing if PHP5 and PHP7 treats equal values returned by comparable-functions differently.
