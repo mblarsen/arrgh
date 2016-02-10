@@ -1,6 +1,7 @@
 # Arrgh—a sane PHP array library
 
-[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master) [![Support via Gittip](http://img.shields.io/gittip/mblarsen.svg?style=flat)](https://www.gittip.com/mblarsen/) [![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/mblarsen?utm_source=github&utm_medium=button&utm_term=mblarsen&utm_campaign=github) [![Join the chat at https://gitter.im/mblarsen/arrgh](https://badges.gitter.im/mblarsen/arrgh.svg)](https://gitter.im/mblarsen/arrgh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master) [![Total Downloads](https://poser.pugx.org/mblarsen/arrgh/downloads.svg)](https://packagist.org/packages/patricklouys/http)  
+[![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/mblarsen?utm_source=github&utm_medium=button&utm_term=mblarsen&utm_campaign=github) [![Join the chat at https://gitter.im/mblarsen/arrgh](https://badges.gitter.im/mblarsen/arrgh.svg)](https://gitter.im/mblarsen/arrgh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
 
