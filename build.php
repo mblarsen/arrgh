@@ -1,6 +1,6 @@
 <?php
 
-require dirname(__FILE__) . '/src/Arrgh.php';
+require __DIR__ . '/src/Arrgh.php';
 $arrgh_prefix = isset($argv[1]) ? $argv[1] : "arrgh";
 $prefix = $arrgh_prefix . "_";
 $all_functions = array_merge(...array_values(Arrgh::allFunctions()));

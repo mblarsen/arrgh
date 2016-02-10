@@ -431,4 +431,10 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "id" => "42", "name" => "Jakob", "age" => 37 ],
         ], arrgh_multisort(arrgh_column($input, "age"), $input)[1]);
     }
+    
+    public function testArrghOfArrgs()
+    {
+        $arr = arrgh([arrgh([5, 4]), arrgh(["a", "b"])]);
+        $this->assertEquals([[5,4], ["a", "b"]], $arr->toArray());
+    }
 }

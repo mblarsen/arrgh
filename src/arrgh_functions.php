@@ -3,7 +3,7 @@ if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
     $arrgh_prefix = defined("ARRGH_PREFIX") ? ARRGH_PREFIX : "arrgh";
     
     if ($arrgh_prefix === "arrgh" || $arrgh_prefix === "arr") {
-        require dirname(__FILE__) . "/prebuild.${arrgh_prefix}_functions.php";
+        require __DIR__ . "/prebuild.${arrgh_prefix}_functions.php";
     } else {
         if (in_array("eval", explode(",", ini_get("disable_functions")))) {
             throw new Exception("eval() must be activated to use other custom arrgh prefix");

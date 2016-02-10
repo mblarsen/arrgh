@@ -1,10 +1,10 @@
 {
     "name": "mblarsen/arrgh",
     "type": "library",
-    "description": "PHP arrays the rrright way",
-    "keywords": ["array", "chain", "chaining", "functional", "shim"],
+    "description": "Arrgh—a sane PHP array library",
+    "keywords": ["array", "chain", "chaining", "functional", "shim", "php7"],
     "license": "MIT",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",

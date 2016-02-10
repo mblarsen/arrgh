@@ -14,9 +14,9 @@ function arr_except()
 {
     return Arrgh::except(...func_get_args());
 }
-function arr_map_ass()
+function arr_map_assoc()
 {
-    return Arrgh::map_ass(...func_get_args());
+    return Arrgh::map_assoc(...func_get_args());
 }
 function arr_only()
 {

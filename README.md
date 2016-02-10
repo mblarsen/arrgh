@@ -11,7 +11,7 @@ The goal of _Arrgh_ is to provide a more uniform library for working with arrays
   1. function `arrgh_map($people, $callable)`
   2. static `Arrgh::map($people, $callable)`
   3. object/chainable `$array->map($callable)`
-* Adds missing functions like: `tail`, `collapse`, `sortBy`, `mapAss` (associative mapping function), `get` (a dot-path getter) and many more. (see [Additional functions](#additional-functions))
+* Adds missing functions like: `tail`, `collapse`, `sortBy`, `mapAssoc` (associative mapping function), `get` (a dot-path getter) and many more. (see [Additional functions](#additional-functions))
 * Sorting and comparing works both with PHP5 and PHP7, even for your custom sort and compare functions.
 * You can use the the names you know or shorter ones using snake_case or camelCase. E.g. `$array->array_map()`, `$array->arrayMap()`, `$array->map()`.
 
@@ -253,7 +253,7 @@ These functions are not supported:
 
 In addition to [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.array.php) _Arrgh_ provides these functions:
 
-* `map_ass(array, function)`: Map function that works on associative arrays. Map function `function ($key, $value)`.
+* `map_assoc(array, function)`: Map function that works on associative arrays. Map function `function ($key, $value)`.
 * `sort_by(array, key|function)`: Sort a collection of items by a key or a function. Sort function `function ($item)`.
 * `contains(array, [key])`: Looks through a collection for a certain value and returns true or falls. Can be restricted to a key.
 * `collapse(array)`: Collapses an array of arrays into one. E.g. `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`
@@ -267,6 +267,8 @@ In addition to [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.arra
 * `first(array)`: Synonym for shift
 * `last(array)`: Synonym for pop
 * `partition(array, callable)`: Splits array into two arrays determined by callable function
+* `odd(array)`: Gives all odd-indexed items in an array. 1, 3, 5, etc.
+* `even(array)`: Gives all even-indexed items in an array. 0, 2, 4, etc.
 
 ## Works like array
 
@@ -313,6 +315,7 @@ Now `arrgh_reverse` becomes:
     arr_reverse([1, 2, 3]);
 
 _Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arrgh and arr prefixes, so for these `eval()` is not needed._
+
 ## PHP5 vs PHP7
 
 At the time of writing if PHP5 and PHP7 treats equal values returned by comparable-functions differently.
@@ -376,69 +379,86 @@ Internally the callable is wrapped in PHP version aware callable that inspects t
 
 ## Change log
 
+**v0.8.0**
+
+Changed: `map_ass()` is not `map_assoc()` for consistency.
+
 **v0.7.0**
 
-* Changed: Rewrote `isCollection()` and `depth()`. `[]` is now a collection. Depth is now zero based.
-* Changed: Native `array_column()` will filter away null values—i.e when column is missing. This is equivalent to `array_filter(array_map(callable, array))`. This means that you cannot use
+Changed: Rewrote `isCollection()` and `depth()`. `[]` is now a collection. Depth is now zero based.
+
+Changed: Native `array_column()` will filter away null values—i.e when column is missing. This is equivalent to `array_filter(array_map(callable, array))`. This means that you cannot use
   `array_column()` for `array_multisort()` since array size no longer matches. This behaviour has been changed in _Arrgh_, so to achieve the same result as the native column-function you'll ned to filter it afterwards.
 
 **v0.6.1**
 
-* New: Added `head()`, `tail()`, `first()`, `last()`, `partition()`.
+New: Added `head()`, `tail()`, `first()`, `last()`, `partition()`, `odd()`, `even()`.
 
 **v0.6.0**
 
-* New: Certain sort and compare functions that takes a callable will now automatically have their callable wrapped in a PHP version aware callable.
-* New: Terminator methods will now return an _Arrgh_ object when the result is an array.
-* New: `asort()` behaves like `uasort()` so it is now now mapped to `uassort()` with a wrapped callable
-* New: `shift()` and `unshift()` was missing.
-* Changed: `getPhpSortDirection()` is now `getSortDirection()`
+New: Certain sort and compare functions that takes a callable will now automatically have their callable wrapped in a PHP version aware callable.
+
+New: Terminator methods will now return an _Arrgh_ object when the result is an array.
+
+New: `asort()` behaves like `uasort()` so it is now now mapped to `uassort()` with a wrapped callable
+
+New: `shift()` and `unshift()` was missing.
+
+Changed: `getPhpSortDirection()` is now `getSortDirection()`
 
 **v0.5.8**
 
-* Changed: `getSortDirection()` takes a computed direction.
+Changed: `getSortDirection()` takes a computed direction.
 
 **v0.5.7**
 
-* New: `keepOnce()` added. Will break the chain after keeping it once
+New: `keepOnce()` added. Will break the chain after keeping it once
 
 **v0.5.5**
 
-* New: `min()` and `max` added
-* Added script to build functions in case anyone needs it
+New: `min()` and `max` added
+
+Added script to build functions in case anyone needs it
 
 **v0.5.4**
 
-* Bugfixes
-* New: Global functions are now pre-build for `arrgh` prefix
+Bugfixes: Various patches
+
+New: Global functions are now pre-build for `arrgh` prefix
 
 **v0.5.1**
 
-* Bugfix: sortBy DESC for array with two items would fail
-* Bugfix: sortBy fix for discrepancy for how zero-value sort comparison is handled in PHP5 vs PHP7
+Bugfix: sortBy DESC for array with two items would fail
+
+Bugfix: sortBy fix for discrepancy for how zero-value sort comparison is handled in PHP5 vs PHP7
 
 **v0.5.0**
 
-* Fixed: Collapsing was not reliable, fixed + unittests added
-* Changed: `!>` replaced with option to use negative index. So `children.!>.name` to get name of last child is now: `children.-1.name`
-* New: Added `depth()`
+Fixed: Collapsing was not reliable, fixed + unittests added
+
+Changed: `!>` replaced with option to use negative index. So `children.!>.name` to get name of last child is now: `children.-1.name`
+
+New: Added `depth()`
 
 **v0.4.0**
 
-* New: Implements ArrayAccess and Iterator. Iterator returns Arrgh instead of arrays.
-* New: _Arrgh_ objects can be passed as arguments instead of arrays.
-* New: _copyValue_ type functions like `array_pop` that changes the array but also returns a value
-  now sets the array to it can be access with `toArray()`.
-* New: Default behaviour of value functions is to return the value. E.g. `pop()`. The new function `keepChain()` will return the `Arrgh` object rather than the value.
+New: Implements ArrayAccess and Iterator. Iterator returns Arrgh instead of arrays.
+
+New: _Arrgh_ objects can be passed as arguments instead of arrays.
+
+New: _copyValue_ type functions like `array_pop` that changes the array but also returns a value now sets the array to it can be access with `toArray()`.
+
+New: Default behaviour of value functions is to return the value. E.g. `pop()`. The new function `keepChain()` will return the `Arrgh` object rather than the value.
 
 **v0.3.0**
 
-* Changed `dotGet` to `get`
+Changed `dotGet` to `get`
 
 **v0.2.1**
 
-* Added: `get()` function [[see examples](#examples)]
-* Added: `isCollection()` function
+Added: `get()` function [[see examples](#examples)]
+
+Added: `isCollection()` function
 
 ## TODO
 

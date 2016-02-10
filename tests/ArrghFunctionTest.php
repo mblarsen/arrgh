@@ -30,7 +30,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
             return $value;
         };
 
-        $output = arrgh_map_ass($input, $map_function);
+        $output = arrgh_map_assoc($input, $map_function);
         $this->assertEquals([ "loom", "vehicle", "loom"], array_values($output));
     }
 

@@ -18,4 +18,13 @@ class ArrghIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals([1, 2, 3, 4, 5], $content->toArray());
     }
+    
+    public function testWithKey()
+    {
+        $arr = arrgh([ "name" => "Topher" ]);
+        foreach ($arr as $key => $value) {
+            $this->assertEquals("name", $key);
+            $this->assertEquals("Topher", $value);
+        }
+    }
 }

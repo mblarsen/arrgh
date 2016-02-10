@@ -47,7 +47,7 @@ class Arrgh implements ArrayAccess, Iterator
             }
             return $item;
         }, $this->array);
-        return $this->array;
+        return $array;
     }
 
     public function keep()
@@ -360,7 +360,7 @@ class Arrgh implements ArrayAccess, Iterator
         return self::$function(...$args);
     }
 
-    static private function arrgh_map_ass($array, $callable)
+    static private function arrgh_map_assoc($array, $callable)
     {
         $keys = array_keys($array);
         return array_combine($keys, array_map($callable, $keys, $array));
@@ -682,7 +682,7 @@ class Arrgh implements ArrayAccess, Iterator
         "collapse",
         "contains",
         "except",
-        "map_ass",
+        "map_assoc",
         "only",
         "sort_by",
         'depth',
@@ -821,5 +821,5 @@ class Arrgh implements ArrayAccess, Iterator
 }
 
 if (defined("ARRGH")) {
-    require dirname(__FILE__) . '/arrgh_functions.php';
+    require __DIR__ . '/arrgh_functions.php';
 }
