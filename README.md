@@ -231,6 +231,7 @@ With use of `keepChain()` we'll get the array instead:
 If you want to break the chain again. For example to get the sum of the remaining elements you can:
 
     arrgh([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
+    arrgh([1, 2, 3])->keepChain()->pop()->breakChain()->sum(); // breakChain() = keepChain(false)
 
 If `->keepChain(false)` had been left out `sum()` would also have returned the `Arrgh` object.
 
@@ -340,15 +341,14 @@ For example. The following unittest will fail in PHP 5.6.x and not in 7:
         return $a["age"] - $b["age"];
     });
 
-    //
-    // Actual ouput in PHP 5.6.x:
+    // Actual ouput in PHP5 (Jakob and Ginger reversed):
     // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Ginger", "age" => 42 ],
     //     [ "name" => "Jakob", "age" => 42 ],
     // ]
     //
-    // Actual ouput in PHP 7:
+    // Actual ouput in PHP7 (Jakob and Ginger in the original order):
     // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Jakob", "age" => 42 ],
@@ -357,7 +357,7 @@ For example. The following unittest will fail in PHP 5.6.x and not in 7:
 
 PHP5 and PHP7 treats the items in an array with a compare result differently. You have to take this into account if you code for both versions. While PHP5 changes the order, PHP7 does not have this side-effect.
 
-_Arrgh_ elevates this problem by providing the correct integer depending on which version is running. So when running your custom compare functions you can do like this:
+_Arrgh_ elevates this problem by providing the correctly signed integer depending on which version is running. So when running your custom compare functions you can do like this:
 
     usort($input, function ($a, $b) {
         return Arrgh::getSortDirection($a["age"] - $b["age"]);
@@ -371,13 +371,13 @@ or using _Arrgh_:
 
 See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 
-**New as of v0.6.0** for all _Arrgh_ functions you don't have to take this problem into account, so you can simply do like this:
+**As of v0.6 _Arrgh_ handles this internally** so you can simply do like this:
 
     arrgh_usort($input, function ($a, $b) {
         return $a["age"] - $b["age"];
     });
 
-Internally the callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
+The callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
 
 ## Change log
 
