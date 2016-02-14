@@ -54,13 +54,15 @@ Use buil-in select functions, select by index:
     arrgh_get($array, "children.1.name");    // returns [ ["Lisa"] ]
     arrgh_get($array, "children.-1.name");   // returns [ ["Lisa"], ["Joe"] ]
 
-... or role your own select functions, return names of all female children:
+... or roll your own select functions, return names of all female children:
 
     $children = arrgh($array)->get([ "children.!$.name",
         function ($item, $index) { return $item['sex'] === 'female'; }
     ])->toArray();
 
     // returns [ Mona, Lisa ]
+
+_(Syntax: An array with the path followed by a callable for each occurance of `!$` in the path)_
 
 To achieve the same using chain API (which is also pretty concise) it looks like this:
 
