@@ -1,0 +1,37 @@
+build:
+  environment:
+    php: '5.6.17'
+
+filter:
+  excluded_paths:
+    - 'tests/*'
+    - 'src/prebuild*.php'
+
+checks:
+  php:
+    use_self_instead_of_fqcn: true
+    uppercase_constants: true
+    optional_parameters_at_the_end: true
+    newline_at_end_of_file: true
+    function_in_camel_caps: true
+    fix_use_statements:
+      remove_unused: true
+      preserve_multiple: false
+      preserve_blanklines: false
+      order_alphabetically: true
+    classes_in_camel_caps: true
+    avoid_fixme_comments: true
+    avoid_todo_comments: true
+
+coding_style:
+  php:
+    braces:
+      classes_functions:
+        class: new-line
+        function: new-line
+        closure: end-of-line
+    upper_lower_casing:
+      keywords:
+        general: lower
+      constants:
+        true_false_null: lower
