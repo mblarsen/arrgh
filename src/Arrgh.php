@@ -18,7 +18,7 @@ use \InvalidArgumentException;
  * @method bool contains(array $haystack, string $needle, string $key)
  * @method array except(array $input, array|string $keys)
  * @method array only(array $input, array|string $keys)
- * @method array map_assoc(array $input, Closure $callable)
+ * @method array map_assoc(array $input, \Closure $callable)
  * @method array sort_by(array $input, string $key)
  * @method integer depth(array $input)
  * @method array even(array $input)
@@ -28,7 +28,7 @@ use \InvalidArgumentException;
  * @method bool is_collection(array $input)
  * @method mixed last(array $input)
  * @method array odd(array $input)
- * @method array partition(array $input, Closure $callable)
+ * @method array partition(array $input, \Closure $callable)
  * @method array tail(array $input)
  */
 class Arrgh implements \ArrayAccess, \Iterator
@@ -210,7 +210,7 @@ class Arrgh implements \ArrayAccess, \Iterator
     }
 
     /* Wraps a callable with the purpose of fixing bad PHP sort implementations */
-    private static function wrapCallable($callable)
+    private static function wrapCallable(Closure $callable)
     {
         $direction = self::getSortDirection();
         return function($a, $b) use ($direction, $callable) {
@@ -331,7 +331,6 @@ class Arrgh implements \ArrayAccess, \Iterator
     {
         $matching_handler  = "_rotateRight";
         $matching_function = "array_map";
-        $column_id    =  null;
         $column_array = $args[0];
         $column_key   = $args[1];
         if (count($args) === 3) {
@@ -408,13 +407,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $result;
     }
 
-    private static function _arrgh($function, $args, $object = null)
+    private static function _arrgh($function, $args)
     {
         $function = "arr_" . $function;
         return self::$function(...$args);
     }
 
-    private static function arr_map_assoc($array, $callable)
+    private static function arr_map_assoc($array, Closure $callable)
     {
         $keys = array_keys($array);
         return array_combine($keys, array_map($callable, $keys, $array));
@@ -475,7 +474,7 @@ class Arrgh implements \ArrayAccess, \Iterator
         }
 
         $is_collection = self::arr_is_collection($array);
-        $array = $is_collection ? $array : [ $array ];
+        $array = $is_collection ? $array : [$array];
 
         $result = array_map(function($item) use ($except) {
             foreach ($except as $key) {
@@ -497,7 +496,7 @@ class Arrgh implements \ArrayAccess, \Iterator
         }
 
         $is_collection = self::arr_is_collection($array);
-        $array = $is_collection ? $array : [ $array ];
+        $array = $is_collection ? $array : [$array];
 
         $result = array_map(function($item) use ($only) {
             foreach ($item as $key => $value) {
@@ -682,11 +681,11 @@ class Arrgh implements \ArrayAccess, \Iterator
     /**
      * Partion the input based on the result of the callback function.
      *
-     * @param array    $array    A collection
-     * @param Closeure $callable A callable returning true or false depending on which way to partion the element—left or right.
+     * @param array     $array    A collection
+     * @param \Closeure $callable A callable returning true or false depending on which way to partion the element—left or right.
      * @return array An array with two arrays—left and right: [left, right]
      */
-    private static function arr_partition($array, $callable)
+    private static function arr_partition($array, Closure $callable)
     {
         $left = [];
         $right = [];

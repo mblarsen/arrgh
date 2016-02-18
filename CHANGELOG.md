@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.1
+
+Fixed: 0.9.0 introduced bug (caused by https://bugs.php.net/bug.php?id=71622)
+
 ## v0.9.0
 
 Changed: Cut the `gh` out of `arrgh` so all functions that was `arrgh_*`, is now `arr_*`. You can still change this with a custom prefix set to `arrgh`
