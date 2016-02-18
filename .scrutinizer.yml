@@ -1,7 +1,9 @@
 filter:
   excluded_paths:
+    - 'build.php'
     - 'tests/*'
     - 'src/prebuild*.php'
+    - 'src/arrgh_functions.php'
 
 checks:
   php:
