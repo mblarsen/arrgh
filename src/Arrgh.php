@@ -67,7 +67,7 @@ class Arrgh implements \ArrayAccess, \Iterator
     /* Returns an array */
     public function toArray()
     {
-        $array = array_map(function ($item) {
+        $array = array_map(function($item) {
             if ($item instanceof Arrgh) {
                 return $item->toArray();
             }
@@ -213,7 +213,7 @@ class Arrgh implements \ArrayAccess, \Iterator
     private static function wrapCallable($callable)
     {
         $direction = self::getSortDirection();
-        return function ($a, $b) use ($direction, $callable) {
+        return function($a, $b) use ($direction, $callable) {
             $result = $callable($a, $b);
             if ($result === 0) return $direction;
             return $result;
@@ -227,7 +227,7 @@ class Arrgh implements \ArrayAccess, \Iterator
         $function_name = $snake;
         $function_name_prefixed = stripos($method, "array_") === 0 ? $snake : "array_" . $snake;
 
-        $all_function_names = [ $function_name, $function_name_prefixed ];
+        $all_function_names = [$function_name, $function_name_prefixed];
         $all_functions      = self::allFunctions();
 
         $matching_handler  = null;
@@ -274,7 +274,7 @@ class Arrgh implements \ArrayAccess, \Iterator
 
         // If some arrays are Arrghs map to array or if callable, wrap it in
         // new callable with info about sort direction.
-        $args = array_map(function ($arg) use ($matching_function) {
+        $args = array_map(function($arg) use ($matching_function) {
             if ($arg instanceof Arrgh) {
                 return $arg->array;
             } else if ($arg instanceof Closure) {
@@ -317,7 +317,7 @@ class Arrgh implements \ArrayAccess, \Iterator
     private static function handleCaseAsort(&$matching_handler, &$matching_function, &$post_handler, &$args)
     {
         $matching_function = "uasort";
-        array_push($args, function ($a, $b) { return strcasecmp($a, $b); });
+        array_push($args, function($a, $b) { return strcasecmp($a, $b); });
     }
 
     /* Handles special case: array_column - Native array_column filters away null values.
@@ -332,15 +332,15 @@ class Arrgh implements \ArrayAccess, \Iterator
         $column_key   = $args[1];
         if (count($args) === 3) {
             $column_id = $args[2];
-            $column_ids_new = array_map(function ($item) use ($column_id) {
+            $column_ids_new = array_map(function($item) use ($column_id) {
                 return isset($item[$column_id]) ? $item[$column_id] : null;
             }, $column_array);
-            $post_handler = function ($result) use ($column_ids_new) {
+            $post_handler = function($result) use ($column_ids_new) {
                 return array_combine($column_ids_new, $result);
             };
         }
         $args = [$column_array];
-        array_push($args, function ($item) use ($column_key) {
+        array_push($args, function($item) use ($column_key) {
             return isset($item[$column_key]) ? $item[$column_key] : null;
         });
     }
@@ -433,7 +433,7 @@ class Arrgh implements \ArrayAccess, \Iterator
             return $array;
         }
 
-        $column = array_map(function ($item) use ($key) {
+        $column = array_map(function($item) use ($key) {
             return isset($item[$key]) ? $item[$key] : null;
         }, $array);
         array_multisort($column, ($direction_int === 1 ? SORT_ASC : SORT_DESC), $array);
@@ -442,7 +442,7 @@ class Arrgh implements \ArrayAccess, \Iterator
 
     private static function arr_collapse($array)
     {
-        return array_reduce($array, function ($merged, $item) {
+        return array_reduce($array, function($merged, $item) {
             if (is_array($item)) {
                 return array_merge($merged, $item);
             }
@@ -457,7 +457,7 @@ class Arrgh implements \ArrayAccess, \Iterator
         if ($key) {
             $haystack = array_column($array, $key);
         } else {
-            $haystack = array_reduce($array, function ($merged, $item) {
+            $haystack = array_reduce($array, function($merged, $item) {
                 return array_merge($merged, array_values($item));
             }, []);
         }
@@ -467,13 +467,13 @@ class Arrgh implements \ArrayAccess, \Iterator
     private static function arr_except($array, $except)
     {
         if (is_string($except)) {
-            $except = [ $except ];
+            $except = [$except];
         }
 
         $is_collection = self::arr_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
-        $result = array_map(function ($item) use ($except) {
+        $result = array_map(function($item) use ($except) {
             foreach ($except as $key) {
                 unset($item[$key]);
             }
@@ -489,13 +489,13 @@ class Arrgh implements \ArrayAccess, \Iterator
     private static function arr_only($array, $only)
     {
         if (is_string($only)) {
-            $only = [ $only ];
+            $only = [$only];
         }
 
         $is_collection = self::arr_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
-        $result = array_map(function ($item) use ($only) {
+        $result = array_map(function($item) use ($only) {
             foreach ($item as $key => $value) {
                 if (!in_array($key, $only)) {
                     unset($item[$key]);
@@ -568,7 +568,7 @@ class Arrgh implements \ArrayAccess, \Iterator
                 $next_node = $data;
             } else {
                 if ($is_collection) {
-                    $next_node = array_map(function ($item) use ($next_key) {
+                    $next_node = array_map(function($item) use ($next_key) {
                         if ($item !== null && array_key_exists($next_key, $item)) {
                             return $item[$next_key];
                         }
@@ -625,7 +625,7 @@ class Arrgh implements \ArrayAccess, \Iterator
                             if ($collapse) {
                                 $result[] = $partial;
                             } else {
-                                $result[] = [ $partial ];
+                                $result[] = [$partial];
                             }
                         }
                     }
@@ -668,7 +668,7 @@ class Arrgh implements \ArrayAccess, \Iterator
 
         $depth = 0;
         $child = array_shift($array);
-        while(self::arr_is_collection($child)) {
+        while (self::arr_is_collection($child)) {
             $depth += 1;
             $child = array_shift($child);
         }
@@ -686,24 +686,24 @@ class Arrgh implements \ArrayAccess, \Iterator
     {
         $left = [];
         $right = [];
-        array_walk($array, function ($item, $key) use (&$left, &$right, $callable) {
+        array_walk($array, function($item, $key) use (&$left, &$right, $callable) {
             if ($callable($item, $key)) {
                 $left[] = $item;
             } else {
                 $right[] = $item;
             }
         });
-        return [ $left, $right ];
+        return [$left, $right];
     }
 
     private static function arr_even($array)
     {
-        return self::arr_partition($array, function ($item, $key) { return $key % 2 === 0; })[0];
+        return self::arr_partition($array, function($item, $key) { return $key % 2 === 0; })[0];
     }
 
     private static function arr_odd($array)
     {
-        return self::arr_partition($array, function ($item, $key) { return $key % 2 === 1; })[0];
+        return self::arr_partition($array, function($item, $key) { return $key % 2 === 1; })[0];
     }
 
     /* Synonym of shift */
