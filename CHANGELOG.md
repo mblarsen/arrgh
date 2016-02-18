@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.0
+
+Changed: Cut the `gh` out of `arrgh` so all functions that was `arrgh_*`, is now `arr_*`. You can still change this with a custom prefix set to `arrgh`
+
 ## v0.8.0
 
 Changed: `map_ass()` is not `map_assoc()` for consistency.

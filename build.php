@@ -3,10 +3,10 @@
 require __DIR__ . '/src/Arrgh.php';
 $arrgh_prefix = isset($argv[1]) ? $argv[1] : "arrgh";
 $prefix = $arrgh_prefix . "_";
-$all_functions = array_merge(...array_values(Arrgh::allFunctions()));
+$all_functions = array_merge(...array_values(Arrgh\Arrgh::allFunctions()));
 
 echo "<?php\nfunction $arrgh_prefix(\$array = []) {
-    return new Arrgh(\$array);
+    return new \Arrgh\Arrgh(\$array);
 }\n";
 
 foreach ($all_functions as $function) {
@@ -15,7 +15,7 @@ foreach ($all_functions as $function) {
     }
     $function_name = $prefix . $function;
     $function_impl = "function $function_name()\n{
-    return Arrgh::$function(...func_get_args());
+    return \Arrgh\Arrgh::$function(...func_get_args());
 }\n";
     echo $function_impl;
 }

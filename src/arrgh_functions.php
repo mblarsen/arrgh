@@ -1,8 +1,11 @@
 <?php
+
+use Arrgh\Arrgh;
+
 if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
-    $arrgh_prefix = defined("ARRGH_PREFIX") ? ARRGH_PREFIX : "arrgh";
-    
-    if ($arrgh_prefix === "arrgh" || $arrgh_prefix === "arr") {
+    $arrgh_prefix = defined("ARRGH_PREFIX") ? ARRGH_PREFIX : "arr";
+
+    if ($arrgh_prefix === "arr") {
         require __DIR__ . "/prebuild.${arrgh_prefix}_functions.php";
     } else {
         if (in_array("eval", explode(",", ini_get("disable_functions")))) {
@@ -13,7 +16,7 @@ if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
         $all_functions = array_merge(...array_values(Arrgh::allFunctions()));
 
         eval("function $arrgh_prefix(\$array = []) {
-            return new Arrgh(\$array);
+            return new \Arrgh\Arrgh(\$array);
         }");
 
         foreach ($all_functions as $function) {
@@ -22,7 +25,7 @@ if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
             }
             $function_name = $prefix . $function;
             $function_impl = "function $function_name () {
-                return Arrgh::$function(...func_get_args());
+                return \Arrgh\Arrgh::$function(...func_get_args());
             }";
             eval($function_impl);
         }
@@ -31,4 +34,3 @@ if (!defined("ARRGH_IS_DEFINED") || defined("ARRGH_REDEFINE")) {
     // Define so it will not be defiend again
     if (!defined("ARRGH_IS_DEFINED")) define("ARRGH_IS_DEFINED", true);
 }
-

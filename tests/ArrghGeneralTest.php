@@ -1,5 +1,7 @@
 <?php
 
+use Arrgh\Arrgh;
+
 class ArrghGeneralTest extends PHPUnit_Framework_TestCase
 {
     public function testMethodNames()
@@ -97,7 +99,6 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
         ], $sorted_by_zip_code_minus_age);
-
     }
 
     public function testCollapse()
@@ -306,48 +307,48 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "name" => "Topher", "age" => 18, "zip_code" => 6301 ],
             [ "name" => "Ginger", "age" => 43, "zip_code" => 9210, "foo" => "bar" ],
         ];
-        
-        $this->assertEquals(["Jakob"], 
+
+        $this->assertEquals(["Jakob"],
             Arrgh::get(
-                $array, 
+                $array,
                 [
-                    "!$.name", 
+                    "!$.name",
                     function ($item, $index) { return $item["name"] === "Jakob"; }
                 ]
             )
         );
 
-        $this->assertEquals(["Jakob"], 
+        $this->assertEquals(["Jakob"],
             Arrgh::get(
-                $array, 
+                $array,
                 [
-                    "name.!$", 
+                    "name.!$",
                     function ($item, $index) { return $item["name"] === "Jakob"; }
                 ]
             )
         );
     }
-    
+
     public function testPhpVersionFail56()
     {
         $php_version = explode(".", phpversion());
 
-        $original_input = [ 
+        $original_input = [
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Ginger", "age" => 42 ],
         ];
-        $expected_result = [ 
+        $expected_result = [
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Ginger", "age" => 42 ],
         ];
-        
+
         $input = $original_input;
         usort($input, function ($a, $b) {
             return $a["age"] - $b["age"];
         });
-        
+
         if ($php_version[0] >= 7) {
             $this->assertEquals($expected_result, $input);
         } else {
@@ -359,62 +360,62 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
     {
         $php_version = explode(".", phpversion());
 
-        $original_input = [ 
+        $original_input = [
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Ginger", "age" => 42 ],
         ];
-        $expected_result = [ 
+        $expected_result = [
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Ginger", "age" => 42 ],
             [ "name" => "Jakob", "age" => 42 ],
         ];
-        
+
         $input = $original_input;
         usort($input, function ($a, $b) {
             return $a["age"] - $b["age"];
         });
-        
+
         if ($php_version[0] >= 7) {
             $this->assertNotEquals($expected_result, $input);
         } else {
             $this->assertEquals($expected_result, $input);
         }
     }
-    
+
     public function testPhpVersion()
     {
-        $original_input = [ 
+        $original_input = [
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Ginger", "age" => 42 ],
         ];
-        $expected_result = [ 
+        $expected_result = [
             [ "name" => "Topher", "age" => 18 ],
             [ "name" => "Jakob", "age" => 42 ],
             [ "name" => "Ginger", "age" => 42 ],
         ];
-        
+
         // Shows how getSortDirection can return the proper sort direction
         $input = $original_input;
         usort($input, function ($a, $b) {
             return Arrgh::getSortDirection($a["age"] - $b["age"]);
         });
-        
+
         // Shows that usort callable works without it when using _Arrgh_ methods
         $input = $original_input;
         $this->assertEquals($expected_result, Arrgh::usort($input, function ($a, $b) {
             return $a["age"] - $b["age"];
         }));
     }
-    
+
     public function testMultisortChained()
     {
         $input1 = [100, 1, 10, 1000];
         $input2 = [1, 3, 2, 4];
         $this->assertEquals(3, Arrgh::chain($input1)->multisort($input2)->pop()->shift());
     }
-    
+
     public function testMultisortWithColumn()
     {
         $input = [
@@ -422,19 +423,19 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
             [ "id" => "43", "name" => "Topher", "age" => 18 ],
             [ "id" => "43", "name" => "Allan" ],
         ];
-        
+
         $this->assertEquals([ 37, 18 ], array_column($input, "age"));
-        $this->assertEquals([ 37, 18, null ], arrgh_column($input, "age"));
+        $this->assertEquals([ 37, 18, null ], arr_column($input, "age"));
         $this->assertEquals([
             [ "id" => "43", "name" => "Allan" ],
             [ "id" => "43", "name" => "Topher", "age" => 18 ],
             [ "id" => "42", "name" => "Jakob", "age" => 37 ],
-        ], arrgh_multisort(arrgh_column($input, "age"), $input)[1]);
+        ], arr_multisort(arr_column($input, "age"), $input)[1]);
     }
-    
+
     public function testArrghOfArrgs()
     {
-        $arr = arrgh([arrgh([5, 4]), arrgh(["a", "b"])]);
+        $arr = arr([arr([5, 4]), arr(["a", "b"])]);
         $this->assertEquals([[5,4], ["a", "b"]], $arr->toArray());
     }
 }
