@@ -381,8 +381,8 @@ The callable is wrapped in PHP version aware callable that inspects the result a
 
 ## Changelog
 
-[See CHANGELOG.md](https://github.com/mblarsen/arrgh/blob/master/CHANGELOG.md)
+See [CHANGELOG.md](https://github.com/mblarsen/arrgh/blob/master/CHANGELOG.md)
 
 ## TODO
 
-[See TODO.md](https://github.com/mblarsen/arrgh/blob/master/TODO.md)
+See [TODO.md](https://github.com/mblarsen/arrgh/blob/master/TODO.md)
