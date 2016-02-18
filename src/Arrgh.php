@@ -28,7 +28,7 @@ class Arrgh implements ArrayAccess, Iterator
         if ($array instanceof Arrgh) {
             $this->array = $array->toArray();
         }
-        $this->_original_array = $this->array;
+        $this->original_array = $this->array;
         $this->terminate = true;
     }
 
@@ -228,7 +228,7 @@ class Arrgh implements ArrayAccess, Iterator
             $matching_function = "uasort";
             array_push($args, function ($a, $b) { return strcasecmp($a, $b); });
         }
-        
+
         // Native array_column filters away null values. That means you cannot use array_column
         // for multisort since array size no longer matches. This version of array_column returns
         // null if the column is missing
@@ -382,7 +382,7 @@ class Arrgh implements ArrayAccess, Iterator
             }
             return $array;
         }
-        
+
         $column = array_map(function ($item) use ($key) { return isset($item[$key]) ? $item[$key] : null; }, $array);
         array_multisort($column, ($direction_int === 1 ? SORT_ASC : SORT_DESC), $array);
         return $array;
@@ -696,7 +696,7 @@ class Arrgh implements ArrayAccess, Iterator
         'partition',
         'tail',
     ];
-    
+
     // _call
     static private $simple_functions = [
         "array_change_key_case",
@@ -744,7 +744,7 @@ class Arrgh implements ArrayAccess, Iterator
         "range",
         "sizeof",
     ];
-    
+
     // _copy
     static private $mutable_functions = [
         "array_push",
@@ -765,24 +765,24 @@ class Arrgh implements ArrayAccess, Iterator
         "uksort",
         "usort",
     ];
-    
+
     // _copyMultiple
     static private $mutable_functions_multiple = [
         "array_multisort",
     ];
-    
+
     // _copyValue
     static private $mutable_value_functions = [
         "array_pop",
         "array_shift",
         "end",
     ];
-    
+
     // _rotateRight
     static private $reverse_functions = [
         "array_map",
     ];
-    
+
     // _swapTwoFirst
     static private $swapped_functions = [
         "array_key_exists",
@@ -791,13 +791,13 @@ class Arrgh implements ArrayAccess, Iterator
         "in_array",
         "join",
     ];
-    
+
     static private $starters = [
         "array_fill",
         "array_fill_keys",
         "range",
     ];
-    
+
     static private $terminators = [
         "array_pop",
         "array_shift",
@@ -811,7 +811,7 @@ class Arrgh implements ArrayAccess, Iterator
         "min",
         "sizeof",
     ];
-    
+
     static private $reverse_result_functions = [
         "uasort",
         "uksort",
