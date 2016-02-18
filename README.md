@@ -1,6 +1,6 @@
 # Arrgh—a sane PHP array library
 
-[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master) [![Total Downloads](https://poser.pugx.org/mblarsen/arrgh/downloads.svg)](https://packagist.org/packages/patricklouys/http)  
+[![Build Status](https://travis-ci.org/mblarsen/arrgh.svg?branch=master)](https://travis-ci.org/mblarsen/arrgh) [![Coverage Status](https://coveralls.io/repos/github/mblarsen/arrgh/badge.svg?branch=master)](https://coveralls.io/github/mblarsen/arrgh?branch=master) [![Total Downloads](https://poser.pugx.org/mblarsen/arrgh/downloads.svg)](https://packagist.org/packages/mblarsen/arrgh)  
 [![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/mblarsen?utm_source=github&utm_medium=button&utm_term=mblarsen&utm_campaign=github) [![Join the chat at https://gitter.im/mblarsen/arrgh](https://badges.gitter.im/mblarsen/arrgh.svg)](https://gitter.im/mblarsen/arrgh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
@@ -54,13 +54,15 @@ Use buil-in select functions, select by index:
     arrgh_get($array, "children.1.name");    // returns [ ["Lisa"] ]
     arrgh_get($array, "children.-1.name");   // returns [ ["Lisa"], ["Joe"] ]
 
-... or role your own select functions, return names of all female children:
+... or roll your own select functions, return names of all female children:
 
     $children = arrgh($array)->get([ "children.!$.name",
         function ($item, $index) { return $item['sex'] === 'female'; }
     ])->toArray();
 
     // returns [ Mona, Lisa ]
+
+_(Syntax: An array with the path followed by a callable for each occurance of `!$` in the path)_
 
 To achieve the same using chain API (which is also pretty concise) it looks like this:
 
@@ -229,6 +231,7 @@ With use of `keepChain()` we'll get the array instead:
 If you want to break the chain again. For example to get the sum of the remaining elements you can:
 
     arrgh([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
+    arrgh([1, 2, 3])->keepChain()->pop()->breakChain()->sum(); // breakChain() = keepChain(false)
 
 If `->keepChain(false)` had been left out `sum()` would also have returned the `Arrgh` object.
 
@@ -338,15 +341,14 @@ For example. The following unittest will fail in PHP 5.6.x and not in 7:
         return $a["age"] - $b["age"];
     });
 
-    //
-    // Actual ouput in PHP 5.6.x:
+    // Actual ouput in PHP5 (Jakob and Ginger reversed):
     // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Ginger", "age" => 42 ],
     //     [ "name" => "Jakob", "age" => 42 ],
     // ]
     //
-    // Actual ouput in PHP 7:
+    // Actual ouput in PHP7 (Jakob and Ginger in the original order):
     // [
     //     [ "name" => "Topher", "age" => 18 ],
     //     [ "name" => "Jakob", "age" => 42 ],
@@ -355,7 +357,7 @@ For example. The following unittest will fail in PHP 5.6.x and not in 7:
 
 PHP5 and PHP7 treats the items in an array with a compare result differently. You have to take this into account if you code for both versions. While PHP5 changes the order, PHP7 does not have this side-effect.
 
-_Arrgh_ elevates this problem by providing the correct integer depending on which version is running. So when running your custom compare functions you can do like this:
+_Arrgh_ elevates this problem by providing the correctly signed integer depending on which version is running. So when running your custom compare functions you can do like this:
 
     usort($input, function ($a, $b) {
         return Arrgh::getSortDirection($a["age"] - $b["age"]);
@@ -369,13 +371,13 @@ or using _Arrgh_:
 
 See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 
-**New as of v0.6.0** for all _Arrgh_ functions you don't have to take this problem into account, so you can simply do like this:
+**As of v0.6 _Arrgh_ handles this internally** so you can simply do like this:
 
     arrgh_usort($input, function ($a, $b) {
         return $a["age"] - $b["age"];
     });
 
-Internally the callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
+The callable is wrapped in PHP version aware callable that inspects the result and returns a value according to the PHP version.
 
 ## Change log
 
@@ -462,4 +464,4 @@ Added: `isCollection()` function
 
 ## TODO
 
-* Change unpacking to calls of native functions that uses pass-by-reference to use `call_user_func_array` since `hhvm` doesn't support it.
+* [ ] Change unpacking to calls of native functions that uses pass-by-reference to use `call_user_func_array` since `hhvm` doesn't support it.
