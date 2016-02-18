@@ -206,7 +206,7 @@ class Arrgh implements ArrayAccess, Iterator
     /* Wraps a callable with the purpose of fixing bad PHP sort implementations */
     private static function wrapCallable($callable)
     {
-        $direction = Arrgh::getSortDirection();
+        $direction = self::getSortDirection();
         return function ($a, $b) use ($direction, $callable) {
             $result = $callable($a, $b);
             if ($result === 0) return $direction;
@@ -442,7 +442,7 @@ class Arrgh implements ArrayAccess, Iterator
             $except = [ $except ];
         }
 
-        $is_collection = Arrgh::arrgh_is_collection($array);
+        $is_collection = self::arrgh_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
         $result = array_map(function ($item) use ($except) {
@@ -464,7 +464,7 @@ class Arrgh implements ArrayAccess, Iterator
             $only = [ $only ];
         }
 
-        $is_collection = Arrgh::arrgh_is_collection($array);
+        $is_collection = self::arrgh_is_collection($array);
         $array = $is_collection ? $array : [ $array ];
 
         $result = array_map(function ($item) use ($only) {
@@ -571,8 +571,8 @@ class Arrgh implements ArrayAccess, Iterator
         if (is_array($next_node)) {
 
             // Recurse
-            $node_is_collection = Arrgh::arrgh_is_collection($next_node);
-            $node_depth = Arrgh::arrgh_depth($next_node);
+            $node_is_collection = self::arrgh_is_collection($next_node);
+            $node_depth = self::arrgh_depth($next_node);
 
             if ($node_is_collection) {
                 // Collapse collections
@@ -581,7 +581,7 @@ class Arrgh implements ArrayAccess, Iterator
                     && $path[0] !== "!$"       // if not the result of a custom function
                     && $node_depth > 0         // if array of arrays
                 ) {
-                    $next_node = Arrgh::arrgh_collapse($next_node);
+                    $next_node = self::arrgh_collapse($next_node);
                 }
 
                 if (is_numeric($path[0]) && $node_depth < 1) {
@@ -605,15 +605,15 @@ class Arrgh implements ArrayAccess, Iterator
 
                 // Since collection functions inject an array segment we must collapse the result
                 if ($path[0] === "!$") {
-                    $result = Arrgh::arrgh_collapse($result);
+                    $result = self::arrgh_collapse($result);
                 }
             } else {
                 $result = self::_arrgh_get_traverse($next_node, $path, $collapse, $functions);
             }
             if (is_array($result)) {
                 // Collapse collections greater than 1
-                if (Arrgh::arrgh_depth($result) > 1) {
-                    $result = Arrgh::arrgh_collapse($result);
+                if (self::arrgh_depth($result) > 1) {
+                    $result = self::arrgh_collapse($result);
                 }
                 return array_filter($result);
             }
@@ -636,11 +636,11 @@ class Arrgh implements ArrayAccess, Iterator
     private static function arrgh_depth($array)
     {
         if (empty($array) && is_array($array)) return 0;
-        if (!Arrgh::arrgh_is_collection($array)) return null;
+        if (!self::arrgh_is_collection($array)) return null;
 
         $depth = 0;
         $child = array_shift($array);
-        while(Arrgh::arrgh_is_collection($child)) {
+        while(self::arrgh_is_collection($child)) {
             $depth += 1;
             $child = array_shift($child);
         }
@@ -670,35 +670,35 @@ class Arrgh implements ArrayAccess, Iterator
 
     private static function arrgh_even($array)
     {
-        return Arrgh::arrgh_partition($array, function ($item, $key) { return $key % 2 === 0; })[0];
+        return self::arrgh_partition($array, function ($item, $key) { return $key % 2 === 0; })[0];
     }
 
     private static function arrgh_odd($array)
     {
-        return Arrgh::arrgh_partition($array, function ($item, $key) { return $key % 2 === 1; })[0];
+        return self::arrgh_partition($array, function ($item, $key) { return $key % 2 === 1; })[0];
     }
 
     /* Synonym of shift */
     private static function arrgh_head($array)
     {
-        return Arrgh::shift($array);
+        return self::shift($array);
     }
 
     /* Synonym of shift */
     private static function arrgh_first($array)
     {
-        return Arrgh::shift($array);
+        return self::shift($array);
     }
 
     /* Synonym of pop */
     private static function arrgh_last($array)
     {
-        return Arrgh::pop($array);
+        return self::pop($array);
     }
 
     private static function arrgh_tail($array)
     {
-        return Arrgh::chain($array)->keep()->shift()->toArray();
+        return self::chain($array)->keep()->shift()->toArray();
     }
 
     // _arrgh
