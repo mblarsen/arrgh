@@ -286,7 +286,11 @@ class Arrgh implements \ArrayAccess, \Iterator
         }, $args);
 
         // Invoke handler
-        $result = self::$matching_handler($matching_function, $args, $object);
+        // (issue with strings that has been passed as reference when using
+        // them as callable, see https://bugs.php.net/bug.php?id=71622)
+        $reldnah_gnihctam = $matching_handler;
+        $result = self::$reldnah_gnihctam($matching_function, $args, $object);
+
         // If a post handler is registered let it modify the result
         if ($post_handler) {
             $result = $post_handler($result);

@@ -6,9 +6,9 @@
 The goal of _Arrgh_ is to provide a more uniform library for working with arrays in PHP.
 
 * Arrays as first parameter and they are immutable. The existing API for arrays can be confusing. For some functions the input array is the first parameter on others the last. Moreover some functions returns a new array others mutate the input array (passing it by reference).
-* _Arrgh_ is not a re-write but a remapping of parameters to native functions. E.g. `array_map($callable, $array)` becomes `arrgh_map($array, $callable)`.
+* _Arrgh_ is not a re-write but a remapping of parameters to native functions. E.g. `array_map($callable, $array)` becomes `arr_map($array, $callable)`.
 * Comes in three flavors:
-  1. function `arrgh_map($people, $callable)`
+  1. function `arr_map($people, $callable)`
   2. static `Arrgh::map($people, $callable)`
   3. object/chainable `$array->map($callable)`
 * Adds missing functions like: `tail`, `collapse`, `sortBy`, `mapAssoc` (associative mapping function), `get` (a dot-path getter) and many more. (see [Additional functions](#additional-functions))
@@ -23,12 +23,12 @@ The goal of _Arrgh_ is to provide a more uniform library for working with arrays
 
 Functions takes array as the first parameter in every case—no more looking up in the documents:
 
-    arrgh_map($input, $callable);
-    arrgh_join($input, ",");
+    arr_map($input, $callable);
+    arr_join($input, ",");
 
 Chain functions together:
 
-    arrgh($input)->reverse()->slice(0, 5)->sum();
+    arr($input)->reverse()->slice(0, 5)->sum();
 
 Powerful get function using _dot-paths_:
 
@@ -45,18 +45,18 @@ Powerful get function using _dot-paths_:
     ];
 
     // Return all children's names
-    arrgh_get($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
-    arrgh_get($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
+    arr_get($array, "children.name");      // returns [ ["Mona", "Lisa"] , ["Joe"] ]
+    arr_get($array, "children.name", true) // returns [ "Mona", "Lisa", "Joe" ]
 
 Use buil-in select functions, select by index:
 
-    arrgh_get($array, "children.0.name");    // returns [ ["Mona"], ["Joe"] ]
-    arrgh_get($array, "children.1.name");    // returns [ ["Lisa"] ]
-    arrgh_get($array, "children.-1.name");   // returns [ ["Lisa"], ["Joe"] ]
+    arr_get($array, "children.0.name");    // returns [ ["Mona"], ["Joe"] ]
+    arr_get($array, "children.1.name");    // returns [ ["Lisa"] ]
+    arr_get($array, "children.-1.name");   // returns [ ["Lisa"], ["Joe"] ]
 
 ... or roll your own select functions, return names of all female children:
 
-    $children = arrgh($array)->get([ "children.!$.name",
+    $children = arr($array)->get([ "children.!$.name",
         function ($item, $index) { return $item['sex'] === 'female'; }
     ])->toArray();
 
@@ -66,7 +66,7 @@ _(Syntax: An array with the path followed by a callable for each occurance of `!
 
 To achieve the same using chain API (which is also pretty concise) it looks like this:
 
-    $children = arrgh($array)
+    $children = arr($array)
         ->map(function ($person) { return isset($person["children"]) ? $person["children"] : null; })
         ->filter()
         ->collapse()
@@ -79,17 +79,17 @@ To achieve the same using chain API (which is also pretty concise) it looks like
 
 ## Array as first argument
 
-_Arrgh_ doesn't rewrite the array algorithms but remaps parameters to native functions. E.g. `arrgh_map` moves the `$callable` as the last parameter.
+_Arrgh_ doesn't rewrite the array algorithms but remaps parameters to native functions. E.g. `arr_map` moves the `$callable` as the last parameter.
 
     array_map ( callable $callback , array $array1 [, array $... ] )
 
 Becomes:
 
-    arrgh_map ( array $array1 [, array $... ] , callable $callback )
+    arr_map ( array $array1 [, array $... ] , callable $callback )
 
 Example usage:
 
-    arrgh_map($products, function ($product) {
+    arr_map($products, function ($product) {
         return $product->code();
     });
 
@@ -125,12 +125,12 @@ This means where you had to like this:
 You can now do like this:
 
     // Top 5 most expensive products
-    return arrgh_slice(arrgh_usort($products, function ($p1, $p2) { ... }), 0, 5);
+    return arr_slice(arr_usort($products, function ($p1, $p2) { ... }), 0, 5);
 
 Or you could use chains like this [[see more below](#chain-style)]:
 
     // Top 5 most expensive products
-    return arrgh($products)
+    return arr($products)
         ->usort($products, function ($p1, $p2) { ... })
         ->slice(0, 5);
 
@@ -146,11 +146,11 @@ _Arrgh_ comes in three styles for your temperament:
 
 The _Arrgh_ repertoire of functions is include in the global scope, so that you can use the functions anywhere. Just like the native array functions:
 
-    arrgh_replace($defaults, $params);
+    arr_replace($defaults, $params);
 
 The constructor function `aargh()` lets you start a chain:
 
-    arrgh($defaults)->replace($params);
+    arr($defaults)->replace($params);
 
 #### Using function style
 
@@ -163,7 +163,7 @@ You can change the function prefix using:
 
     define("ARRGH_PREFIX", "arr");
 
-Now `arrgh_reverse` becomes:
+Now `arr_reverse` becomes:
 
     arr_reverse([1, 2, 3]);
 
@@ -182,7 +182,7 @@ All static methods takes an array as the first input and returns an array. Even 
 
 You can break out of static-style and start a [chain](#chain-style) like this:
 
-    Arrgh::arrgh($big_numbers)
+    Arrgh::arr($big_numbers)
         ->sort()
         ->reduce(function ($k, $v) { return $k += ln($v); });
 
@@ -197,11 +197,11 @@ A synonym of `arrgh` is `chain`. A shorthand for both is to prefix any method wi
 
 Chains can be created in a couple of ways.
 
-Using the `arrgh()` function:
+Using the `arr()` function:
 
-    arrgh($array)->reverse();
+    arr($array)->reverse();
 
-Using the static methods `Arrgh::arrgh()` or `Arrgh::chain()`:
+Using the static methods `Arrgh::arr()` or `Arrgh::chain()`:
 
     Arrgh::chain($array)->reverse();
 
@@ -222,31 +222,31 @@ _Note: *Arrgh* implements both [ArrayAccess<sup>php</sup>](http://php.net/manual
 
 In case you want to preserve the array rather than the result of a terminating functions like e.g. `pop()`, you can use `keepChain()`:
 
-    arrgh([1, 2, 3])->pop(); // will return 3
+    arr([1, 2, 3])->pop(); // will return 3
 
 With use of `keepChain()` we'll get the array instead:
 
-    arrgh([1, 2, 3])->keepChain()->pop(); // will return an Arrgh object with the array [1, 2]
+    arr([1, 2, 3])->keepChain()->pop(); // will return an Arrgh object with the array [1, 2]
 
 If you want to break the chain again. For example to get the sum of the remaining elements you can:
 
-    arrgh([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
-    arrgh([1, 2, 3])->keepChain()->pop()->breakChain()->sum(); // breakChain() = keepChain(false)
+    arr([1, 2, 3])->keepChain()->pop()->keepChain(false)->sum(); // returns 3
+    arr([1, 2, 3])->keepChain()->pop()->breakChain()->sum(); // breakChain() = keepChain(false)
 
 If `->keepChain(false)` had been left out `sum()` would also have returned the `Arrgh` object.
 
 The same expression can be written using `keepOnce()`:
 
-    arrgh([1, 2, 3])->keepOnce()->pop()->sum(); // returns 3
+    arr([1, 2, 3])->keepOnce()->pop()->sum(); // returns 3
 
 ## All functions are there
 
 All the functions from the PHP manual [Array Functions<sup>php</sup>](http://php.net/manual/en/ref.array.php) section are supported.
 
-If you use function style the methods are prefixed with `arrgh_` except for functions starting with `array_` (in that case it is replaced):
+If you use function style the methods are prefixed with `arr_` except for functions starting with `array_` (in that case it is replaced):
 
-    array_map => arrgh_map
-    usort => arrgh_usort
+    array_map => arr_map
+    usort => arr_usort
 
 These functions are not supported:
 
@@ -279,7 +279,7 @@ _Arrgh_ implements [ArrayAccess<sup>php</sup>](http://php.net/manual/en/class.ar
 
 Here is an example using foreach:
 
-    $arr = arrgh([1, 2, 3, 4, 5]);
+    $arr = arr([1, 2, 3, 4, 5]);
     foreach ($arr as $value) {
         echo $value . PHP_EOL;
     }
@@ -292,8 +292,8 @@ You can push values onto array like native arrays:
 
 Array values are returned as `Arrgh` objects:
 
-    $arr = arrgh([[3, 2, 1], [5, 4]]);
-    $content = arrgh([]);
+    $arr = arr([[3, 2, 1], [5, 4]]);
+    $content = arr([]);
     foreach ($arr as $value) {
         $content = $content->merge($value->reverse());
     }
@@ -307,17 +307,17 @@ If you want to make use of function-style you have to define the following befor
 
 Now you can use functions like this anywhere in your code:
 
-    arrgh_reverse([1, 2, 3]);
+    arr_reverse([1, 2, 3]);
 
 You can change the function prefix using:
 
-    define("ARRGH_PREFIX", "arr");
+    define("ARRGH_PREFIX", "arrgh");
 
-Now `arrgh_reverse` becomes:
+Now `arr_reverse` becomes:
 
-    arr_reverse([1, 2, 3]);
+    arrgh_reverse([1, 2, 3]);
 
-_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arrgh and arr prefixes, so for these `eval()` is not needed._
+_Note: changing the function prefix requires the use of `eval()`. If `eval()` is disabled *Arrgh* will throw an exception. *Arrgh* comes prebuild with arr prefixes, so for these `eval()` is not needed._
 
 ## PHP5 vs PHP7
 
@@ -365,7 +365,7 @@ _Arrgh_ elevates this problem by providing the correctly signed integer dependin
 
 or using _Arrgh_:
 
-    arrgh_usort($input, function ($a, $b) {
+    arr_usort($input, function ($a, $b) {
         return Arrgh::getSortDirection($a["age"] - $b["age"]);
     });
 
@@ -373,7 +373,7 @@ See example in the unit test `ArrghGeneralTest::testPhpVersionFail*`.
 
 **As of v0.6 _Arrgh_ handles this internally** so you can simply do like this:
 
-    arrgh_usort($input, function ($a, $b) {
+    arr_usort($input, function ($a, $b) {
         return $a["age"] - $b["age"];
     });
 
