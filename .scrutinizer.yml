@@ -13,7 +13,7 @@ checks:
     uppercase_constants: true
     optional_parameters_at_the_end: true
     newline_at_end_of_file: true
-    function_in_camel_caps: true
+    function_in_camel_caps: false
     fix_use_statements:
       remove_unused: true
       preserve_multiple: false
