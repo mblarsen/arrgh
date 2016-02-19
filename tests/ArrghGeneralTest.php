@@ -291,6 +291,16 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Invalid constructor value
+     */
+    public function testBadConstructor()
+    {
+        new Arrgh('invalid');
+        $this->assertFail('Should have thrown exception');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
      */
     public function testGetPathNotInArray()
     {

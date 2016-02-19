@@ -40,18 +40,18 @@ class Arrgh implements \ArrayAccess, \Iterator
     private $array;
 
     /**
+    * The original array value
+    *
+    * @var array
+    */
+    private $original_array;
+
+    /**
      * Array positino for ArrayAccess and Iterator
      *
      * @var integer
      */
     private $array_position;
-
-    /**
-     * The original array value
-     *
-     * @var array
-     */
-    private $original_array;
 
     /**
      * Termination flag. If set to false terminating methods will return $this
@@ -94,15 +94,20 @@ class Arrgh implements \ArrayAccess, \Iterator
      * Creates a new Arrgh object
      *
      * @method __construct
-     * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
+     * @param  array|Arrgh      $array Optional parameter that can be either an array or another Arrgh object.
      */
-    public function __construct($array = [])
+    public function __construct($array = null)
     {
-        $this->array = $array;
-        $this->array_position = 0;
-        if ($array instanceof Arrgh) {
+        if ($array === null) {
+            $this->array = [];
+        } else if (is_array($array)) {
+            $this->array = $array;
+        } else if ($array instanceof Arrgh) {
             $this->array = $array->toArray();
+        } else {
+            throw new InvalidArgumentException("Invalid constructor value");
         }
+        $this->array_position = 0;
         $this->original_array = $this->array;
         $this->terminate = true;
     }
