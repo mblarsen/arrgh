@@ -1,6 +1,11 @@
 # CHANGELOG
 
-## v0.10.0
+## v0.11
+
+Changed: Moved functions out of namespace (was introduced in 0.9)
+Changed: Removed dev-dependencies since they are mainly for travis.
+
+## v0.10
 
 Changed: All exceptions throw `InvalidArgumentException`
 

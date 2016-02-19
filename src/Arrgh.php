@@ -903,7 +903,3 @@ class Arrgh implements \ArrayAccess, \Iterator
         "asort",
     ];
 }
-
-if (defined("ARRGH")) {
-    require __DIR__ . '/arrgh_functions.php';
-}

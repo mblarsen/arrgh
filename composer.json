@@ -4,7 +4,7 @@
     "description": "Arrgh—a sane PHP array library",
     "keywords": ["array", "chain", "chaining", "functional", "shim", "php7"],
     "license": "MIT",
-    "version": "0.10.0",
+    "version": "0.11.0",
     "authors": [
         {
             "name": "Michael Bøcker-Larsen",
@@ -15,11 +15,14 @@
         "php": ">=5.6"
     },
     "require-dev": {
-        "satooshi/php-coveralls": "^1.0",
-        "phpunit/phpunit": "^5.1"
     },
     "autoload": {
-        "files": [ "src/Arrgh.php" ]
+        "files": [
+          "src/arrgh_functions.php"
+        ],
+        "psr-4": {
+          "Arrgh\\": "src"
+        }
     },
     "minimum-stability": "dev"
 }
