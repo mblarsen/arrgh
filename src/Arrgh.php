@@ -10,25 +10,22 @@ use \InvalidArgumentException;
  *
  * Note: arr_* global functions are defined at the end of the file
  *
- * @method string getString()
- * @method void setInteger(integer $integer)
- * @method setString(integer $integer)
- * @method array collapse(array $input)
- * @method bool contains(array $haystack, string $needle, string $key)
- * @method array except(array $input, array|string $keys)
- * @method array only(array $input, array|string $keys)
- * @method array map_assoc(array $input, \Closure $callable)
- * @method array sort_by(array $input, string $key)
- * @method integer depth(array $input)
- * @method array even(array $input)
- * @method mixed first(array $input)
- * @method array get(array, $input, array|string, $path, bool $collapse)
- * @method mixed head(array $input)
- * @method bool is_collection(array $input)
- * @method mixed last(array $input)
- * @method array odd(array $input)
- * @method array partition(array $input, \Closure $callable)
- * @method array tail(array $input)
+ * @method  collapse(array $input)
+ * @method  contains(array $haystack, string $needle, string $key)
+ * @method  except(array $input, array|string $keys)
+ * @method  only(array $input, array|string $keys)
+ * @method  map_assoc(array $input, \Closure $callable)
+ * @method  sort_by(array $input, string $key)
+ * @method  depth(array $input)
+ * @method  even(array $input)
+ * @method  first(array $input)
+ * @method  get(array, $input, array|string, $path, bool $collapse)
+ * @method  head(array $input)
+ * @method  is_collection(array $input)
+ * @method  last(array $input)
+ * @method  odd(array $input)
+ * @method  partition(array $input, \Closure $callable)
+ * @method  tail(array $input)
  */
 class Arrgh implements \ArrayAccess, \Iterator
 {
@@ -45,7 +42,12 @@ class Arrgh implements \ArrayAccess, \Iterator
     private static $php_version;
     private static $php_sort_direction;
 
-    /* Creates a new arrgh array */
+    /**
+     * Creates a new Arrgh object
+     *
+     * @method __construct
+     * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
+     */
     public function __construct($array = [])
     {
         $this->array = $array;
@@ -57,13 +59,21 @@ class Arrgh implements \ArrayAccess, \Iterator
         $this->terminate = true;
     }
 
-    /* Starts object calls */
+    /**
+     * Invoke calls for Arrgh instances.
+     * @internal
+     */
     public function __call($method, $args)
     {
         return self::invoke($method, $args, $this);
     }
 
-    /* Returns an array */
+    /**
+     * Returns a native array.
+     *
+     * @method toArray
+     * @return array  Returns an array.
+     */
     public function toArray()
     {
         $array = array_map(function($item) {
@@ -75,38 +85,92 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $array;
     }
 
-    public function keep()
-    {
-        return $this->keepChain(true);
-    }
-    public function keepOnce()
-    {
-        return $this->keepChain(true, true);
-    }
+    /**
+     * Tells Arrgh to either return iteself or a value where it would otherwise
+     * had terminated the chain and return a value.
+     *
+     * The default behaviour is to break the chain on terminating methods like:
+     *
+     * - join
+     * - pop
+     *
+     * @method keepChain
+     * @param  bool      $value      Set true to keep and false to terminate.
+     * @param  bool      $keep_once  Set true to automatically switch of again
+     *                               after one call to a terminating method.
+     * @see keep
+     * @see keepOnce
+     * @see breakChain
+     * @return Arrgh\Arrgh self
+     */
     public function keepChain($value = true, $keep_once = false)
     {
         $this->terminate = !$value;
         $this->keep_once = $keep_once;
         return $this;
     }
+
+    /**
+     * Tells Arrgh to return itself where it would otheriwse had terminated
+     * the chain and returned a value.
+     *
+     * @method keep
+     * @see keepChain
+     * @return Arrgh\Arrgh self
+     */
+    public function keep()
+    {
+        return $this->keepChain(true);
+    }
+
+    /**
+     * Tells Arrgh to return iteself where it would otherwise had terminated
+     * the chain and return a value, but do it just once.
+     *
+     * @method keepOnce
+     * @see keepChain
+     * @return Arrgh\Arrgh self
+     */
+    public function keepOnce()
+    {
+        return $this->keepChain(true, true);
+    }
+
+    /**
+     * Tells Arrgh to return to its normal behaviour and return values rather
+     * than itself when terminating methods are called.
+     *
+     * @method breakChain
+     * @see keepChain
+     * @return Arrgh\Arrgh self
+     */
     public function breakChain()
     {
         return $this->keepChain(false);
     }
 
-    /* ArrayAccess */
+    /**
+     * ArrayAccess
+     * @internal
+     */
     public function offsetExists($offset)
     {
         return isset($this->array[$offset]);
     }
 
-    /* ArrayAccess */
+    /**
+     * ArrayAccess
+     * @internal
+     */
     public function offsetGet($offset)
     {
         return isset($this->array[$offset]) ? $this->array[$offset] : null;
     }
 
-    /* ArrayAccess */
+    /**
+     * ArrayAccess
+     * @internal
+     */
     public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
@@ -116,13 +180,19 @@ class Arrgh implements \ArrayAccess, \Iterator
         }
     }
 
-    /* ArrayAccess */
+    /**
+     * ArrayAccess
+     * @internal
+     */
     public function offsetUnset($offset)
     {
         unset($this->array[$offset]);
     }
 
-    /* Iterator */
+    /**
+     * Iterator
+     * @internal
+     */
     public function current()
     {
         $value = $this->array[$this->array_position];
@@ -132,43 +202,70 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $value;
     }
 
-    /* Iterator */
+    /**
+     * Iterator
+     * @internal
+     */
     public function key()
     {
         return $this->array_position;
     }
 
-    /* Iterator */
+    /**
+     * Iterator
+     * @internal
+     */
     public function next()
     {
         ++$this->array_position;
     }
 
-    /* Iterator */
+    /**
+     * Iterator
+     * @internal
+     */
     public function rewind()
     {
         $this->array_position = 0;
     }
 
-    /* Iterator */
+    /**
+     * Iterator
+     * @internal
+     */
     public function valid()
     {
         return isset($this->array[$this->array_position]);
     }
 
-    /* Creates a new arr array. Synonym for: chain() */
+    /**
+     * Creates a new Arrgh object (chain)
+     *
+     * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
+     * @see chain
+     * @return Arrgh\Arrgh       A new Arrgh object
+     */
     public static function arr($array = [])
     {
-        return self::chain($array);
+        return new self($array);
     }
 
-    /* Creates a new arrgh array. Synonym for: arr() */
+    /**
+     * Creates a new Arrgh object (chain)
+     *
+     * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
+     * @see arr
+     * @return Arrgh\Arrgh       A new Arrgh object
+     */
     public static function chain($array = [])
     {
         return new self($array);
     }
 
-    /* Starts object calls */
+    /**
+     * Invoke calls for static Arrgh calls.
+     * @internal
+     */
     public static function __callStatic($method, $args)
     {
         if ($method[0] === "_") {
@@ -183,6 +280,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return self::invoke($method, $args);
     }
 
+    /**
+     * Returns list of supported functions partitioned into types of functions.
+     *
+     * @method allFunctions
+     * @return array       Associative array with function type as key point
+     *                     to a list of functions of that type
+     */
     public static function allFunctions()
     {
         return [
@@ -196,6 +300,22 @@ class Arrgh implements \ArrayAccess, \Iterator
         ];
     }
 
+    /**
+     * Given the PHP version this functions returns the sort integer to use
+     * for equal values in functions like `usort`. Optionally you can pass in
+     * the existing value like so:
+     *
+     * usort($input, function ($a, $b) {
+     *     return Arrgh::getSortDirection($a - $b);
+     * });
+     *
+     * This will ensure that the custom sort function will work in both PHP
+     * version 5.6.x and 7.x
+     *
+     * @method getSortDirection
+     * @param  integer           $direction An integer like value
+     * @return integer                      Returns a sort integer for a sort or compare function
+     */
     public static function getSortDirection($direction = null)
     {
         if (self::$php_version === null) {
@@ -208,18 +328,120 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $direction;
     }
 
-    /* Wraps a callable with the purpose of fixing bad PHP sort implementations */
+    /**
+     * Wraps a callable with the purpose of fixing bad PHP sort implementations.
+     *
+     * @internal
+     *
+     * @method wrapCallable
+     * @param  \Closure      $callable A sort function
+     * @return \Closure                A new closeure
+     */
     private static function wrapCallable(Closure $callable)
     {
         $direction = self::getSortDirection();
         return function($a, $b) use ($direction, $callable) {
             $result = $callable($a, $b);
-            if ($result === 0) return $direction;
+            if ($result === 0) {
+                return $direction;
+            }
             return $result;
         };
     }
 
-    /* Based on input method finds handler, function and post handler */
+
+    /**
+     * Transforms the incoming calls to native calls.
+     *
+     * @internal
+     *
+     * @method invoke
+     * @param  string $method Name of method to invoke.
+     * @param  array  $args   Arguments for method.
+     * @param  Arrgh  $object Optionally invoke on $object.
+     *
+     * @return mixed          Can return anything.
+     */
+    private static function invoke($method, $args, Arrgh $object = null)
+    {
+        self::getSortDirection();
+
+        list($matching_handler, $matching_function, $post_handler) = self::findFunction($method);
+
+        switch ($matching_function) {
+            case "asort":
+                self::handleCaseAsort(
+                    /* ref */ $matching_function,
+                    /* ref */ $args
+                );
+                break;
+            case "array_column":
+                self::handleCaseArrayColumn(
+                    /* ref */ $matching_handler,
+                    /* ref */ $matching_function,
+                    /* ref */ $post_handler,
+                    /* ref */ $args
+                );
+                break;
+            default:
+                break;
+        }
+
+        // If chain unshift array onto argument stack
+        if ($object && !in_array($matching_function, self::$starters)) {
+            array_unshift($args, $object->array);
+        }
+
+        // If some arrays are Arrghs map to array or if callable, wrap it in
+        // new callable with info about sort direction.
+        $args = array_map(function($arg) use ($matching_function) {
+            if ($arg instanceof Arrgh) {
+                return $arg->array;
+            } else if ($arg instanceof Closure) {
+                if (in_array($matching_function, self::$reverse_result_functions) && self::$php_version[0] < 7) {
+                    return self::wrapCallable($arg);
+                }
+            }
+            return $arg;
+        }, $args);
+
+        // Invoke handler
+        $matching_handler_derefed = $matching_handler; // bug in 7.0.3, internally the var is no longer a string but a pointer
+        $result = self::$matching_handler_derefed($matching_function, $args, $object);
+
+        // If a post handler is registered let it modify the result
+        if ($post_handler) {
+            $result = $post_handler($result);
+        }
+
+        if ($object) {
+            if (in_array($matching_function, self::$terminators)) {
+                if ($object->terminate) {
+                    if (is_array($result)) {
+                        return new Arrgh($result);
+                    }
+                    return $result;
+                }
+                if ($object->keep_once) {
+                    $object->terminate = true;
+                    $object->keep_once = false;
+                }
+                $object->last_value = $result;
+                return $object;
+            }
+            $object->array = $result;
+            return $object;
+        }
+        return $result;
+    }
+
+    /**
+     * Based on input method finds handler, function and post handler.
+     *
+     * @internal
+     *
+     * @return array Returns a tuble of [handler, function, postHandler]
+     */
     private static function findFunction($method)
     {
         $snake = strtolower(preg_replace('/\B([A-Z])/', '_\1', $method));
@@ -248,84 +470,25 @@ class Arrgh implements \ArrayAccess, \Iterator
         return [$matching_handler, $matching_function, $post_handler];
     }
 
-    /* Transforms the incoming calls to native calls */
-    private static function invoke($method, $args, $object = null)
-    {
-        self::getSortDirection();
-
-        list($matching_handler, $matching_function, $post_handler) = self::findFunction($method);
-
-        switch ($matching_function) {
-            case "asort":
-                self::handleCaseAsort($matching_handler, $matching_function, $post_handler, $args);
-                break;
-            case "array_column":
-                self::handleCaseArrayColumn($matching_handler, $matching_function, $post_handler, $args);
-                break;
-            default:
-                break;
-        }
-
-        // If chain unshift array onto argument stack
-        if ($object && !in_array($matching_function, self::$starters)) {
-            array_unshift($args, $object->array);
-        }
-
-        // If some arrays are Arrghs map to array or if callable, wrap it in
-        // new callable with info about sort direction.
-        $args = array_map(function($arg) use ($matching_function) {
-            if ($arg instanceof Arrgh) {
-                return $arg->array;
-            } else if ($arg instanceof Closure) {
-                if (in_array($matching_function, self::$reverse_result_functions) && self::$php_version[0] < 7) {
-                    return self::wrapCallable($arg);
-                }
-            }
-            return $arg;
-        }, $args);
-
-        // Invoke handler
-        // (issue with strings that has been passed as reference when using
-        // them as callable, see https://bugs.php.net/bug.php?id=71622)
-        $reldnah_gnihctam = $matching_handler;
-        $result = self::$reldnah_gnihctam($matching_function, $args, $object);
-
-        // If a post handler is registered let it modify the result
-        if ($post_handler) {
-            $result = $post_handler($result);
-        }
-
-        if ($object) {
-            if (in_array($matching_function, self::$terminators)) {
-                if ($object->terminate) {
-                    if (is_array($result)) {
-                        return new Arrgh($result);
-                    }
-                    return $result;
-                }
-                if ($object->keep_once) {
-                    $object->terminate = true;
-                    $object->keep_once = false;
-                }
-                $object->last_value = $result;
-                return $object;
-            }
-            $object->array = $result;
-            return $object;
-        }
-        return $result;
-    }
-
-    /* Handles special case: asort - In PHP5 reverses equals ("arsort" doen't mess up for some reason) */
-    private static function handleCaseAsort(&$matching_handler, &$matching_function, &$post_handler, &$args)
+    /**
+     * Handles special case: asort - In PHP5 reverses equals ("arsort" doen't mess up for some reason)
+     *
+     * @internal
+     */
+    private static function handleCaseAsort(&$matching_function, &$args)
     {
         $matching_function = "uasort";
         array_push($args, function($a, $b) { return strcasecmp($a, $b); });
     }
 
-    /* Handles special case: array_column - Native array_column filters away null values.
+    /**
+     * Handles special case: array_column - Native array_column filters away null values.
+     *
      * That means you cannot use array_column for multisort since array size no longer matches.
-     * This version of array_column returns null if the column is missing. */
+     * This version of array_column returns null if the column is missing.
+     *
+     * @internal
+     */
     private static function handleCaseArrayColumn(&$matching_handler, &$matching_function, &$post_handler, &$args)
     {
         $matching_handler  = "_rotateRight";
@@ -347,13 +510,25 @@ class Arrgh implements \ArrayAccess, \Iterator
         });
     }
 
-    /* Calls the native function directly */
+    /**
+     * Handler: _call
+     *
+     * Calls the native function directly.
+     *
+     * @internal
+     */
     private static function _call($function, $args)
     {
         return $function(...$args);
     }
 
-    /* Shifts of the first argument (callable) and pushes it to the end */
+    /**
+     * Handler: _rotateRight
+     *
+     * Shifts of the first argument (callable) and pushes it to the end.
+     *
+     * @internal
+     */
     private static function _rotateRight($function, $args)
     {
         $first_argument = array_pop($args);
@@ -361,7 +536,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $function(...$args);
     }
 
-    /* Swaps the first two args */
+    /**
+     * Handler: _swapTwoFirst
+     *
+     * Swaps the first two args.
+     *
+     * @internal
+     */
     private static function _swapTwoFirst($function, $args)
     {
         $first_argument = array_shift($args);
@@ -371,7 +552,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $function(...$args);
     }
 
-    /* Makes a copy of the array and returns it after invoking function */
+    /**
+     * Handler: _copy
+     *
+     * Makes a copy of the array and returns it after invoking function.
+     *
+     * @internal
+     */
     private static function _copy($function, $args)
     {
         $array = array_shift($args);
@@ -379,7 +566,14 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $array;
     }
 
-    /* If multiple arrays are passed as arguments mulitple will be returned. Otherwise _copy is used */
+    /**
+     * Handler: _copyMultiple
+     *
+     * If multiple arrays are passed as arguments mulitple will be returned.
+     * Otherwise _copy is used.
+     *
+     * @internal
+     */
     private static function _copyMultiple($function, $args)
     {
         $function(...$args);
@@ -395,7 +589,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $arrays;
     }
 
-    /* Makes a copy of the array and returns it after invoking function */
+    /**
+     * Handler: _copyValue
+     *
+     * Makes a copy of the array and returns it after invoking function.
+     *
+     * @internal
+     */
     private static function _copyValue($function, $args, $object = null)
     {
         $array = array_shift($args);
@@ -406,12 +606,29 @@ class Arrgh implements \ArrayAccess, \Iterator
         return $result;
     }
 
+    /**
+     * Handler: _arrgh
+     *
+     * The handler for non-native functions
+     *
+     * @internal
+     */
     private static function _arrgh($function, $args)
     {
         $function = "arr_" . $function;
         return self::$function(...$args);
     }
 
+    /**
+     * A mapping function for associative arrays (keeps keys).
+     *
+     * @method map_assoc
+     *
+     * @param  array         $array    Array or array-like value.
+     * @param  Closure       $callable Mapping function
+     *
+     * @return array                   Returns mapped associative array.
+     */
     private static function arr_map_assoc($array, Closure $callable)
     {
         $keys = array_keys($array);
@@ -455,7 +672,6 @@ class Arrgh implements \ArrayAccess, \Iterator
 
     private static function arr_contains($array, $search, $key = null)
     {
-        $haystack = null;
         if ($key) {
             $haystack = array_column($array, $key);
         } else {
@@ -539,7 +755,6 @@ class Arrgh implements \ArrayAccess, \Iterator
         $next_key      = array_shift($path);
         $plug_index    = is_numeric($next_key) ? (int) $next_key : null;
         $is_collection = self::isCollection($data);
-        $next_node = null;
 
         // Apply custom function
         if ($next_key === '!$') {
@@ -578,42 +793,8 @@ class Arrgh implements \ArrayAccess, \Iterator
         if (is_array($next_node)) {
 
             // Recurse
-            $node_is_collection = self::arr_is_collection($next_node);
-            $node_depth = self::arr_depth($next_node);
-
-            if ($node_is_collection) {
-                // Collapse collections
-                if ($collapse                  // if enabled
-                    && !is_numeric($path[0])   // if next path segment is not an index
-                    && $path[0] !== "!$"       // if not the result of a custom function
-                    && $node_depth > 0         // if array of arrays
-                ) {
-                    $next_node = self::arr_collapse($next_node);
-                }
-
-                if (is_numeric($path[0]) && $node_depth < 1) {
-                    $result = self::_arr_get_traverse($next_node, $path, $collapse, $functions);
-                } else {
-                    // Collect data from sub-tree
-                    $result = [];
-                    foreach ($next_node as $node) {
-                        if ($node === null) {
-                            $result[] = null;
-                        } else {
-                            $partial = self::_arr_get_traverse($node, $path, $collapse, $functions);
-                            if ($collapse) {
-                                $result[] = $partial;
-                            } else {
-                                $result[] = [$partial];
-                            }
-                        }
-                    }
-                }
-
-                // Since collection functions inject an array segment we must collapse the result
-                if ($path[0] === "!$") {
-                    $result = self::arr_collapse($result);
-                }
+            if (self::arr_is_collection($next_node)) {
+                $result = self::_arr_get_traverse_collection($path, $next_node, $collapse, $functions);
             } else {
                 $result = self::_arr_get_traverse($next_node, $path, $collapse, $functions);
             }
@@ -629,6 +810,42 @@ class Arrgh implements \ArrayAccess, \Iterator
             return $result;
         }
         return null;
+    }
+
+    private static function _arr_get_traverse_collection($path, $next_node, $collapse, $functions)
+    {
+        $node_depth = self::arr_depth($next_node);
+
+        // Collapse collections
+        $is_intermediary_collection = !is_numeric($path[0]) && $path[0] !== "!$" && $node_depth > 0;
+        if ($collapse && $is_intermediary_collection) {
+            $next_node = self::arr_collapse($next_node);
+        }
+
+        if (is_numeric($path[0]) && $node_depth < 1) {
+            $result = self::_arr_get_traverse($next_node, $path, $collapse, $functions);
+        } else {
+            // Collect data from sub-tree
+            $result = [];
+            foreach ($next_node as $node) {
+                if ($node === null) {
+                    $result[] = null;
+                } else {
+                    $partial = self::_arr_get_traverse($node, $path, $collapse, $functions);
+                    if ($collapse) {
+                        $result[] = $partial;
+                    } else {
+                        $result[] = [$partial];
+                    }
+                }
+            }
+        }
+
+        // Since collection functions inject an array segment we must collapse the result
+        if ($path[0] === "!$") {
+            $result = self::arr_collapse($result);
+        }
+        return $result;
     }
 
     /* arr_get: Find next node by index */
@@ -691,8 +908,15 @@ class Arrgh implements \ArrayAccess, \Iterator
      */
     private static function arr_depth($array)
     {
-        if (empty($array) && is_array($array)) return 0;
-        if (!self::arr_is_collection($array)) return null;
+        // Empty arrays are assumed to be collections, thus returning 0-depth
+        if (empty($array) && is_array($array)) {
+            return 0;
+        }
+
+        // Associative arrays are not collections, return null
+        if (!self::arr_is_collection($array)) {
+            return null;
+        }
 
         $depth = 0;
         $child = array_shift($array);

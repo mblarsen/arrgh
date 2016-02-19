@@ -753,7 +753,7 @@ class ArrghFunctionTest extends PHPUnit_Framework_TestCase
     {
         $input = [1, 2, 3, 4];
         $max = 0;
-        for ($i = 0; $i < 15 ; $i++) {
+        for ($i = 0; $i < 30 ; $i++) {
             $rand = arr_rand($input);
             if ($rand > $max) {
                 $max = $rand;
