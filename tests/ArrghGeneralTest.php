@@ -290,6 +290,34 @@ class ArrghGeneralTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException Exception
+     */
+    public function testGetPathNotInArray()
+    {
+        $array = [
+            [ "name" => "Jakob", "age" => 37, "children" => [
+                [ "name" => "Mona", "sex" => "female" ],
+                [ "name" => "Lisa", "sex" => "female" ],
+            ] ],
+            [ "name" => "Topher", "age" => 18, "children" => [
+                [ "name" => "Joe", "sex" => "male" ],
+            ] ],
+        ];
+
+        $this->assertEmpty(Arrgh::get($array, "children.toys.name"));
+
+        $array = [
+            [ "name" => "Jakob", "age" => 37, "children" => [
+                [ "name" => "Mona", "sex" => "female" ],
+                [ "name" => "Lisa", "sex" => "female" ],
+            ] ],
+            [ "name" => "Topher", "age" => 18, "children" => 7],
+        ];
+
+        $this->assertEquals([], Arrgh::get($array, "children.toys"));
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      */
     public function testInvalidMethod()

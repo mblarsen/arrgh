@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.2
+
+New: Throws `Exception` on invalid paths (null, empty not considered invalid)
+
 ## v0.9.1
 
 Fixed: 0.9.0 introduced bug (caused by https://bugs.php.net/bug.php?id=71622)

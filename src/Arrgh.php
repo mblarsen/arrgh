@@ -520,6 +520,9 @@ class Arrgh implements \ArrayAccess, \Iterator
      *  @param path|array A string representing the path to traverse.
      *                    Optionally pass as [ $path, ...$functions ] if `!$` is used
      *  @param bool       Collapse resulting data-set
+     *  @throws Exception Thrown when a path cannot be reached in case $array does
+     *                    not correspond to path type. E.g. collection expected
+     *                    but a simple value was encountered.
      */
     private static function arr_get($array, $path, $collapse = false)
     {
@@ -528,60 +531,34 @@ class Arrgh implements \ArrayAccess, \Iterator
             $path_string = array_shift($path);
         }
         $path_segments = explode(".", $path_string);
-        $result = self::_arr_get_traverse($array, $path_segments, $collapse, /* functions */ $path);
-        return $result;
+        return self::_arr_get_traverse($array, $path_segments, $collapse, /* functions */ $path);
     }
 
+    /* arr_get: Traverses path to get value */
     private static function _arr_get_traverse($data, $path, $collapse = false, $functions = [])
     {
         $next_key      = array_shift($path);
         $plug_index    = is_numeric($next_key) ? (int) $next_key : null;
         $is_collection = self::isCollection($data);
-
         $next_node = null;
 
         // Apply custom function
         if ($next_key === '!$') {
             if ($is_collection) {
-                $function  = array_shift($functions);
-                $data      = array_values(array_filter($data, $function, ARRAY_FILTER_USE_BOTH));
-                $next_key  = array_shift($path);
+                list($data, $path, $functions, $next_key) = self::_arr_get_traverse_apply_custom_function($data, $functions, $path);
             } else {
                 throw new Exception("Invalid path trying to invoke function on non-collection");
             }
         }
 
         // Select data either by index or key
-        if ($plug_index !== null) {
-            $count = count($data);
+        if ($plug_index === null) {
+            $next_node = self::_arr_get_traverse_next_node_key($data, $is_collection, $next_key);
+        } else {
             if ($is_collection) {
-                // Adjust negative index
-                if ($plug_index < 0) {
-                    $plug_index = $count === 1 ? 0 : $count + ($plug_index % $count);
-                }
-                // Plug data
-                if (isset($data[$plug_index])) {
-                    $next_node = $data[$plug_index];
-                }
+                $next_node = self::_arr_get_traverse_next_node_index($data, $plug_index);
             } else {
                 throw new Exception("Invalid path trying to plug item but data is not a collection");
-            }
-        } else {
-            if ($next_key === null) {
-                $next_node = $data;
-            } else {
-                if ($is_collection) {
-                    $next_node = array_map(function($item) use ($next_key) {
-                        if ($item !== null && array_key_exists($next_key, $item)) {
-                            return $item[$next_key];
-                        }
-                        return null;
-                    }, $data);
-                } else if (is_array($data)) {
-                    if (array_key_exists($next_key, $data)) {
-                        $next_node = $data[$next_key];
-                    }
-                }
             }
         }
 
@@ -641,6 +618,8 @@ class Arrgh implements \ArrayAccess, \Iterator
             } else {
                 $result = self::_arr_get_traverse($next_node, $path, $collapse, $functions);
             }
+
+            // Collapse result if needed
             if (is_array($result)) {
                 // Collapse collections greater than 1
                 if (self::arr_depth($result) > 1) {
@@ -651,6 +630,53 @@ class Arrgh implements \ArrayAccess, \Iterator
             return $result;
         }
         throw new Exception("Next node in path is not an array");
+    }
+
+    /* arr_get: Find next node by index */
+    private static function _arr_get_traverse_next_node_index($data, $plug_index)
+    {
+        // Adjust negative index
+        if ($plug_index < 0) {
+            $count = count($data);
+            $plug_index = $count === 1 ? 0 : $count + ($plug_index % $count);
+        }
+
+        // Plug data
+        if (isset($data[$plug_index])) {
+            return $data[$plug_index];
+        }
+        return null;
+    }
+
+    /* arr_get: Find next node by key */
+    private static function _arr_get_traverse_next_node_key($data, $is_collection, $next_key)
+    {
+        if ($next_key === null) {
+            return $data;
+        }
+        if ($is_collection) {
+            return array_map(function($item) use ($next_key) {
+                if ($item !== null && array_key_exists($next_key, $item)) {
+                    return $item[$next_key];
+                }
+                return null;
+            }, $data);
+        } else if (is_array($data)) {
+            if (array_key_exists($next_key, $data)) {
+                return $data[$next_key];
+            }
+            return null;
+        }
+        throw new Exception("Path ...$next_key does not exist");
+    }
+
+    /* arr_get: Invoke custom filter function on path */
+    private static function _arr_get_traverse_apply_custom_function($data, $functions, $path)
+    {
+        $function  = array_shift($functions);
+        $data      = array_values(array_filter($data, $function, ARRAY_FILTER_USE_BOTH));
+        $next_key  = array_shift($path);
+        return [$data, $path, $functions, $next_key];
     }
 
     private static function arr_is_collection($mixed)
@@ -715,16 +741,20 @@ class Arrgh implements \ArrayAccess, \Iterator
         return self::shift($array);
     }
 
-    /* Synonym of shift */
     private static function arr_first($array)
     {
-        return self::shift($array);
+        if (count($array)) {
+            return $array[0];
+        }
+        return null;
     }
 
-    /* Synonym of pop */
     private static function arr_last($array)
     {
-        return self::pop($array);
+        if (count($array)) {
+            return $array[count($array) - 1];
+        }
+        return null;
     }
 
     private static function arr_tail($array)
