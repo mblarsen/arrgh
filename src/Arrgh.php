@@ -14,7 +14,7 @@ use \InvalidArgumentException;
  * @method  contains(array $haystack, string $needle, string $key)
  * @method  except(array $input, array|string $keys)
  * @method  only(array $input, array|string $keys)
- * @method  map_assoc(array $input, \Closure $callable)
+ * @method  map_assoc(array $input, Closure $callable)
  * @method  sort_by(array $input, string $key)
  * @method  depth(array $input)
  * @method  even(array $input)
@@ -24,7 +24,7 @@ use \InvalidArgumentException;
  * @method  is_collection(array $input)
  * @method  last(array $input)
  * @method  odd(array $input)
- * @method  partition(array $input, \Closure $callable)
+ * @method  partition(array $input, Closure $callable)
  * @method  tail(array $input)
  */
 class Arrgh implements \ArrayAccess, \Iterator
@@ -32,14 +32,62 @@ class Arrgh implements \ArrayAccess, \Iterator
     const PHP_SORT_DIRECTION_56 = 1;
     const PHP_SORT_DIRECTION_7 = -1;
 
+    /**
+     * Native array
+     *
+     * @var array
+     */
     private $array;
+
+    /**
+     * Array positino for ArrayAccess and Iterator
+     *
+     * @var integer
+     */
     private $array_position;
+
+    /**
+     * The original array value
+     *
+     * @var array
+     */
     private $original_array;
+
+    /**
+     * Termination flag. If set to false terminating methods will return $this
+     * instead of a value.
+     *
+     * @var bool
+     */
     private $terminate;
+
+    /**
+     * Keep once flag. If set invoke() will switch on the terminate flag after
+     * not returning value once.
+     *
+     * @var bool
+     */
     private $keep_once;
+
+    /**
+     * The last value computed.
+     *
+     * @var mixed
+     */
     private $last_value;
 
+    /**
+     * PHP version array. [major, minor, patch]
+     *
+     * @var array
+     */
     private static $php_version;
+
+    /**
+     * Sort direction value based on PHP version. Is set first time used.
+     *
+     * @var integer
+     */
     private static $php_sort_direction;
 
     /**
@@ -101,7 +149,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      * @see keep
      * @see keepOnce
      * @see breakChain
-     * @return Arrgh\Arrgh self
+     * @return Arrgh self
      */
     public function keepChain($value = true, $keep_once = false)
     {
@@ -116,7 +164,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *
      * @method keep
      * @see keepChain
-     * @return Arrgh\Arrgh self
+     * @return Arrgh self
      */
     public function keep()
     {
@@ -129,7 +177,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *
      * @method keepOnce
      * @see keepChain
-     * @return Arrgh\Arrgh self
+     * @return Arrgh self
      */
     public function keepOnce()
     {
@@ -142,7 +190,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *
      * @method breakChain
      * @see keepChain
-     * @return Arrgh\Arrgh self
+     * @return Arrgh self
      */
     public function breakChain()
     {
@@ -243,7 +291,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *
      * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
      * @see chain
-     * @return Arrgh\Arrgh       A new Arrgh object
+     * @return Arrgh             A new Arrgh object.
      */
     public static function arr($array = [])
     {
@@ -255,7 +303,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *
      * @param  mixed      $array Optional parameter that can be either an array or another Arrgh object.
      * @see arr
-     * @return Arrgh\Arrgh       A new Arrgh object
+     * @return Arrgh             A new Arrgh object.
      */
     public static function chain($array = [])
     {
@@ -334,8 +382,8 @@ class Arrgh implements \ArrayAccess, \Iterator
      * @internal
      *
      * @method wrapCallable
-     * @param  \Closure      $callable A sort function
-     * @return \Closure                A new closeure
+     * @param  Closure      $callable A sort function
+     * @return Closure                A new closeure
      */
     private static function wrapCallable(Closure $callable)
     {
@@ -356,9 +404,9 @@ class Arrgh implements \ArrayAccess, \Iterator
      * @internal
      *
      * @method invoke
-     * @param  string $method Name of method to invoke.
-     * @param  array  $args   Arguments for method.
-     * @param  Arrgh  $object Optionally invoke on $object.
+     * @param  string      $method Name of method to invoke.
+     * @param  array       $args   Arguments for method.
+     * @param  Arrgh|null  $object Optionally invoke on $object.
      *
      * @return mixed          Can return anything.
      */
@@ -980,9 +1028,13 @@ class Arrgh implements \ArrayAccess, \Iterator
         return null;
     }
 
-    private static function arr_tail($array)
+    private static function arr_tail($array, $object = null)
     {
-        return self::chain($array)->keep()->shift()->toArray();
+        array_shift($array);
+        if ($object) {
+            $object->array = $array;
+        }
+        return $array;
     }
 
     // _arrgh
