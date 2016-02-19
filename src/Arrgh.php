@@ -3,7 +3,6 @@
 namespace Arrgh;
 
 use \Closure;
-use \Exception;
 use \InvalidArgumentException;
 
 /**
@@ -520,7 +519,7 @@ class Arrgh implements \ArrayAccess, \Iterator
      *  @param path|array A string representing the path to traverse.
      *                    Optionally pass as [ $path, ...$functions ] if `!$` is used
      *  @param bool       Collapse resulting data-set
-     *  @throws Exception Thrown when a path cannot be reached in case $array does
+     *  @throws InvalidArgumentException Thrown when a path cannot be reached in case $array does
      *                    not correspond to path type. E.g. collection expected
      *                    but a simple value was encountered.
      */
@@ -547,7 +546,7 @@ class Arrgh implements \ArrayAccess, \Iterator
             if ($is_collection) {
                 list($data, $path, $functions, $next_key) = self::_arr_get_traverse_apply_custom_function($data, $functions, $path);
             } else {
-                throw new Exception("Invalid path trying to invoke function on non-collection");
+                throw new InvalidArgumentException("Invalid path trying to invoke function on non-collection");
             }
         }
 
@@ -558,7 +557,7 @@ class Arrgh implements \ArrayAccess, \Iterator
             if ($is_collection) {
                 $next_node = self::_arr_get_traverse_next_node_index($data, $plug_index);
             } else {
-                throw new Exception("Invalid path trying to plug item but data is not a collection");
+                throw new InvalidArgumentException("Invalid path trying to plug item but data is not a collection");
             }
         }
 
@@ -629,7 +628,7 @@ class Arrgh implements \ArrayAccess, \Iterator
             }
             return $result;
         }
-        throw new Exception("Next node in path is not an array");
+        return null;
     }
 
     /* arr_get: Find next node by index */
@@ -667,7 +666,7 @@ class Arrgh implements \ArrayAccess, \Iterator
             }
             return null;
         }
-        throw new Exception("Path ...$next_key does not exist");
+        throw new InvalidArgumentException("Path ...$next_key does not exist");
     }
 
     /* arr_get: Invoke custom filter function on path */

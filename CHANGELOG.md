@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.10.0
+
+Changed: All exceptions throw `InvalidArgumentException`
+
 ## v0.9.2
 
 New: Throws `Exception` on invalid paths (null, empty not considered invalid)
