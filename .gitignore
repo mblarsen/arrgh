@@ -2,3 +2,5 @@ vendor
 build
 composer.lock
 .coveralls.yml
+.DS_Store
+docs

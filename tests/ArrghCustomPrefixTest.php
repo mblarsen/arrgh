@@ -1,11 +1,13 @@
 <?php
 
+namespace Arrgh;
+
 define("ARRGH_REDEFINE", true);
 define("ARRGH_PREFIX", "loyo");
 
 require dirname(__FILE__) . "/../src/arrgh_functions.php";
 
-class ArrghCustomPrefixTest extends PHPUnit_Framework_TestCase
+class ArrghCustomPrefixTest extends \PHPUnit_Framework_TestCase
 {
     public function testCustomPrefix()
     {

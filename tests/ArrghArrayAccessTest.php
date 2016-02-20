@@ -1,8 +1,8 @@
 <?php
 
-use Arrgh\Arrgh;
+namespace Arrgh;
 
-class ArrghArrayAccessTest extends PHPUnit_Framework_TestCase
+class ArrghArrayAccessTest extends \PHPUnit_Framework_TestCase
 {
     public function testArrayAccess()
     {

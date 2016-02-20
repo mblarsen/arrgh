@@ -1,6 +1,8 @@
 <?php
 
-class ArrghIteratorTest extends PHPUnit_Framework_TestCase
+namespace Arrgh;
+
+class ArrghIteratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testIterator()
     {

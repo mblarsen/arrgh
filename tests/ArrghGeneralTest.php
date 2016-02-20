@@ -1,8 +1,8 @@
 <?php
 
-use Arrgh\Arrgh;
+namespace Arrgh;
 
-class ArrghGeneralTest extends PHPUnit_Framework_TestCase
+class ArrghGeneralTest extends \PHPUnit_Framework_TestCase
 {
     public function testMethodNames()
     {

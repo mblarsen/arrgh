@@ -1,8 +1,8 @@
 <?php
 
-use Arrgh\Arrgh;
+namespace Arrgh;
 
-class ArrghChainTest extends PHPUnit_Framework_TestCase
+class ArrghChainTest extends \PHPUnit_Framework_TestCase
 {
     public function testStartChain()
     {

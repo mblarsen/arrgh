@@ -1,8 +1,8 @@
 <?php
 
-use Arrgh\Arrgh;
+namespace Arrgh;
 
-class ArrghFunctionTest extends PHPUnit_Framework_TestCase
+class ArrghFunctionTest extends \PHPUnit_Framework_TestCase
 {
     private $string_compare_function;
     private $number_compare_function;
